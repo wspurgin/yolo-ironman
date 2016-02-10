@@ -30,7 +30,7 @@ class Ironman(object):
             self.host = self.starting_url
         else:
             self.host = urlparse(self.starting_url).netloc
-        self.pattern = re.compile('<a\s?.*href="(.+\.\w+)"\s*>')
+        self.pattern = re.compile('<a\s?.*href="(.+\w+)"\s*>')
         if 'pattern' in kwargs:
             self.pattern = re.compile(kwargs['pattern'])
 
