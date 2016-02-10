@@ -16,7 +16,8 @@ class Ironman(object):
     @param starting_url
     @param treat_as_host = false
     @kwargs
-        pattern = regex pattern used to detect new URLS
+        pattern = regex pattern used to detect new URLS, compiled with `re` and
+            with ignore case.
         bind_to_starting_host = boolean
 
     The `treat_as_host` option is useful if the starting URL is not actually a
@@ -30,9 +31,9 @@ class Ironman(object):
             self.host = self.starting_url
         else:
             self.host = urlparse(self.starting_url).netloc
-        self.pattern = re.compile('<a\s?.*href="(.+\w+)"\s*>')
+        self.pattern = re.compile('<a\s?.*href="(.+\w+)"\s*>', re.IGNORECASE)
         if 'pattern' in kwargs:
-            self.pattern = re.compile(kwargs['pattern'])
+            self.pattern = re.compile(kwargs['pattern'], re.IGNORECASE)
 
         # Get Robots.txt and parse it for information.
 
