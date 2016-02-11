@@ -4,34 +4,8 @@ import domainGetter as dg
 from collections import deque
 import re
 import lxml
-import requests
-import malwares
 import sys
 import csv
-
-def readInputFile(urlFile = 'scanList.txt'):
-    urlList = []
-    fl = open(urlFile, 'r')
-    for url in fl:
-        urlList.append(url)
-    fl.close()
-    return urlList
-
-def readStatFile():
-    fl = open('stats.csv', 'r')
-    reader = csv.reader(fl)
-    statDict = {}
-    for row in reader:
-        statDict[row[0]] = (row[1], row[2])
-    fl.close()
-    return statDict
-
-def writeStateFile(statDict, statFile):
-    fl = open(statFile, 'w')
-    writer = csv.writer(fl, delimiter=',')
-    for url, dates in statDict.iteritems():
-        writer.writerow([url, dates[0], dates[1]])
-    fl.close()
 
 def parseSource(url):
     """
@@ -44,23 +18,9 @@ def parseSource(url):
     # If url is actually a URL, then it needs to be
     # opened with requests, otherwise it's a local 
     # file path, which can be opened the 'normal' way
-    if string.find(url[:4], "http") != -1:
-        try:
-            fName = '../Test/TestSite/'+url.replace('/', '')
-            if (len(fName)>235):
-                fName = fName[:235]
-            fl = open('../Test/TestSite/'+url.replace('/', ''))
-            source = fl.read()
-            fl.close()
-        except IOError:
-            source = requests.get(url)
-            #if malwares.htaccess(source.headers, url): 
-            #    return 'redirect'
-            source = source.content
-    else:
-        fl = open(url, 'r')
-        source = fl.read()
-        fl.close()
+    source = requests.get(url)
+    source = source.content
+
     return BeautifulSoup(source, "html.parser")
 
 def createList(soupObj, tags=True):
@@ -162,16 +122,6 @@ def getDomain(url):
     """
     return dg.gettld(url)
 
-def crawlForMalware(html):
-    """
-    Scans a single webpage for malware.
-    """
-    soup = parseSource(html)
-    if soup == 'redirect' or malwares.findMalware(soup):
-        print "Malware found on", html
-        return True
-    else:
-        return False
 
 def spiderForMalware(html):
     """
@@ -194,12 +144,6 @@ def spiderForMalware(html):
     while hrefQueue:
         # Gets the next link in BFS order
         curPage = hrefQueue.popleft()   
-        curDepth = depthDict[curPage]
-        # Once the depth reaches 3, then we are assuming 
-        # that the website is clean
-        if curDepth > 1: 
-            print "Maximum depth reached"
-            break
         # Adds the current page to the pages that have
         # been visited.
         visitedHrefs.append(curPage)
@@ -210,21 +154,6 @@ def spiderForMalware(html):
             curSoup = parseSource(curPage)
         except IOError:
             continue
-        # Checks the page for malware. If it finds some,
-        # it prints out the URL of the page and the malware
-        # that was found, and returns True.
-        if malwares.findMalware(curSoup):
-            print "Malware found on", curPage
-            return True
-        # Keeps track of the number of pages that have been scanned.
-        # If the total reaches 26 or above, then we are stopping the
-        # scan.
-        numPages += 1
-        if numPages > 25:
-           print "Maximum number of pages reached" 
-           break
-        sys.stdout.write("\rDepth:{0}\tPage:{1}".format(curDepth, numPages))
-        sys.stdout.flush()
         # Gets all the links on the page that point
         # to somewhere within the domain. It also checks to
         # see if external links in <script> and <img> tags
@@ -239,8 +168,3 @@ def spiderForMalware(html):
             if href not in visitedHrefs and href not in hrefQueue:
                 hrefQueue.append(href)
                 depthDict[href] = curDepth+1
-    # If it gets through the loop, then there was no malware
-    # to be found.
-    print "\nNo malware found on this url!"
-    return False
-
