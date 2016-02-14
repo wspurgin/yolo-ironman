@@ -16,116 +16,91 @@ from urlparse import urlparse
 from bs4 import BeautifulSoup
 from collections import deque
 
+# "constants"
+__ROBOTS_TXT__ = "/robots.txt" # relative address of robots.txt from host
+__USER_AGENT__ = "*"           # user agent to check in robots.txt
+__HTTP__       = "http"
+
 class Ironman(object):
     """
     The Tony Stark of web crawler classes. Yolo.
     @param starting_url
-    @param treat_as_host = false
-    @kwargs
-        bind_to_starting_host = boolean
+    @param treat_as_root = false
 
-    The `treat_as_host` option is useful if the starting URL is not actually a
-    host but you want Ironman to treat it like it is, such as
+    The `treat_as_root` option is useful if the starting URL is not actually a
+    root but you want Ironman to treat it like it is, such as
     http://lyle.smu.edu/~wspurgin
     """
-    def __init__(self, starting_url, treat_as_host=False, **kwargs):
+
+    def __init__(self, starting_url, treat_as_root=False, **kwargs):
         super(Ironman, self).__init__()
         self.starting_url = starting_url
-        self.treat_as_host = treat_as_host
-        self.externalLinks = []
-        if self.treat_as_host:
-            self.host = self.starting_url
+        self.treat_as_root = treat_as_root
+        self.external_links = []
+        self.robot = None
+
+        parts = urlparse(self.starting_url)
+        if self.treat_as_root:
+            self.root = self.starting_url
+            self.domain = parts.netloc + parts.path
         else:
-            self.host = urlparse(self.starting_url).netloc
-        self.pattern = re.compile('<a\s?.*href="(.+\w+)"\s*>', re.IGNORECASE)
-        if 'pattern' in kwargs:
-            self.pattern = re.compile(kwargs['pattern'], re.IGNORECASE)
+            self.root = __HTTP__ + "://" + parts.netloc
+            self.domain = parts.netloc
+
+        # Add an ending slash to the root if it doesn't already have one. This
+        # doesn't affect the URL results, but helps when having to deal with
+        # relative addresses.
+        if not self.root.endswith("/"):
+            self.root += "/"
 
         # Get Robots.txt and parse it for information.
+        self.robots_url = self.constructUrl(__ROBOTS_TXT__)
+        self.updateRobots()
 
-    def crawl(self):
-        if not self.starting_url:
-            raise Exception("No url set for instance of Ironman")
-        nodeSoup = self.parseSource(self.starting_url)
-        self.findPages(nodeSoup, self.host, self.starting_url, )
+    def updateRobots(self):
+        if self.robot is None:
+            self.robot = RobotFileParser()
+            self.robot.set_url(self.robots_url)
+        self.robot.read()
 
-    def parseSource(self, url):
+    def crawl(self, url):
+        full_url = self.constructUrl(url)
+        is_travelable, reason = self.isTravelable(full_url, include_reason=True)
+        # TODO actually handle the return from a crawl...
+        if is_travelable:
+            req = requests.get(full_url)
+            nodeSoup = self.parseSource(req)
+            return self.findLinks(nodeSoup, full_url)
+        else:
+            return (url, reason)
+
+    def isTravelable(self, full_url, include_reason=False):
         """
-        Takes in a URL or a local path to either a webpage
-        that needs to be tested, or a local document that
-        is either a webpage or file with malware. A BeautifulSoup
-        object is returned in either case, along with a string
-        to indicate whether it is a url or file path.
-        """
-        # If url is actually a URL, then it needs to be
-        # opened with requests, otherwise it's a local
-        # file path, which can be opened the 'normal' way
-        source = requests.get(url)
-        source = source.content
+        Determines if the given url is "travelable". This is based on looking at
+        URL scheme (e.g. http, sftp, mailto, etc.), and then if it is an HTTP(S)
+        URL, the robots.txt file rules are used to determine if Ironman is
+        allowed to retrieve the URL.
 
-        # TODO Check content types
+        @param full_url, This is the URL to examine. It should be a fully valid
+        URL (e.g. http://google.com). Use `constructUrl` if unsure if the URL is
+        a fully valid URL.
 
-        return BeautifulSoup(source, "html.parser")
+        @returns a tuple of (is_travelable:boolean, reason:string)
+        """
+        # TODO First check if scheme is supported
+        # TODO Check content types?
+        url_fragments = urlparse(full_url)
+        is_travelable = True
+        reason = "valid"
 
-    def createList(self, soup, tags=True):
-        """
-        Takes in a BeautifulSoup object from a soupified
-        file, and a list of tags to search for. It first
-        creates a list of the tags. It then iterates over
-        the list, removing white space from the text inside
-        of the tags in order for comparisons between lists
-        from different sources to give false negatives.
-        """
-        soupList = [tag for tag in soup.find_all(tags)]
-        for idx, tag in enumerate(soupList):
-            # tag.string returns None if there is no text inside the tag
-            if tag.string:
-                # Replaces the string inside the tags with the same string
-                # without ANY white space.
-                # http://stackoverflow.com/questions/3739909/how-to-strip-all-whitespace-from-string
-                soupList[idx].string.replace_with("".join(tag.string.split()))
-        return soupList
+        if include_reason:
+            return (is_travelable, reason)
+        else:
+            return is_travelable
 
-    def findPages(self, htmlSoup, domainUrl, currentUrl, savingPages=False):
+    def constructUrl(self, url, current_url=None):
         """
-        Takes in a BeautifulSoup object from a soupified url,
-        and the domainUrl of that website. Searches through a
-        webpage searching for all the links on the page, and
-        then whittling it down to only links that are on the
-        original URL's domain. It will also check to see if
-        the src attributes of img and script tags to external
-        domains is flagged by google to be malicious.
-        """
-        # Finds all the tags in the soup, and stores only the href
-        # and src attributes.
-        tagList = []
-        for tag in htmlSoup.find_all(True):
-            if tag.get('href') is not None:
-                tagList.append(tag['href'], tag)
-            elif tag.get('src') is not None:
-                tagList.append(tag['src'], tag)
-
-        # tempList = [(tag['href'], tag) for tag in htmlSoup.find_all(True) if tag.get('href') is not None]
-        # Removes all links not on the correct domain, and creates
-        # urls based off of relative paths.
-        hrefList = []
-        for tag in tagList:
-            # If the href is to a page on the same domain as the
-            # current page.
-            if getDomain(tag[0]) == domainUrl:
-                hrefList.append(tag[0])
-            # If the href is a relative path.
-            elif string.find(tag[0][:4], 'http') == -1:
-                hrefList.append(constructUrl(tag[0], currentUrl))
-            # The href is to a page on a different domain.
-            else:
-                self.externalLinks.append(tag[0])
-        return hrefList
-
-    def constructUrl(self, tag, currentUrl):
-        """
-        Creates a URL for when an anchor tag has an href
-        attribute that is a relative path to another page
+        Creates a URL for when the given URL is a relative path to another page
         on the same site. Examples of possible hrefs:
             newPage.html
             /pageInRootFolder.html
@@ -133,26 +108,54 @@ class Ironman(object):
             ../differentFolder/newPage.html
             ../../differentFolder/otherFolder/newPage.html
         """
-        currentPath = string.rsplit(currentUrl, '/', 1)[0] + '/'
-        slashLoc = string.find(tag, '/')
-        # If the tag doesn't have any slashes, it's to a new page
-        # in the same directory as the current page
-        if slashLoc == -1:
-            return currentPath + tag
-        # If the tag starts with a slash, then it is relative to
-        # the root directory of the website
-        # TODO don't manually add URL schema, use the one initalized in
-        # construction
-        elif slashLoc == 0:
-            return 'http://' + getDomain(currentPath) + tag
-        # If the tag starts with '../', then it is one folder up
-        # from the current path. There can be any number of '../'
-        # at the start of the path, so it must account for all of
-        # them
-        else:
-            folders = string.count(tag, '../')
-            return string.rsplit(currentPath, '/', folders+1)[0] + '/' + string.lstrip(tag, '../')
+        # Guard statement for if current_url is not given.
+        current_url = self.root if not current_url else current_url
+        full_url = ""
+        url_fragments = urlparse(url)
+        current_path = current_url if current_url.endswith("/") else current_url + "/"
 
+        # If the URL doesn't have a scheme (e.g. http, https) then it is a
+        # relative address.
+        if not url_fragments.scheme:
+            # If the tag doesn't start with a slash, it's a relative address
+            # from the current page
+            if not url.startswith("/"):
+                full_url = current_path + url
+            else:
+                # the url is a relative address from the root, so remove the slash
+                path = url[1::]
+                full_url = self.root + path
+        else:
+            full_url = url
+        return full_url
+
+
+    def parseSource(self, source):
+        """
+        Takes in a Requests HTTP request object. A BeautifulSoup object is
+        returned.
+        """
+        # TODO Use different parser based on content types?
+        source = source.content
+        return BeautifulSoup(source, "html.parser")
+
+    def findLinks(self, htmlSoup, current_url):
+        """
+        Takes in a BeautifulSoup object from a soupified url. Searches through
+        a webpage and returns all the links on the page.
+        """
+        # Finds all the tags in the soup, and stores only the href
+        # and src attributes.
+        links = []
+        tags = htmlSoup.find_all(href=True) + htmlSoup.find_all(src=True)
+        for tag in tags:
+            if tag.get('href') is not None:
+                links.append(tag['href'])
+            elif tag.get('src') is not None:
+                links.append(tag['src'])
+        links = [ self.constructUrl(link, current_url) for link in links ]
+
+        return links
 
     def getDomain(self, url):
         """
@@ -163,6 +166,7 @@ class Ironman(object):
         return urlparse(url).netloc
 
 
+    # TODO this method still needs refactoring
     def spiderForLinks(self, html, limit=None):
         """
         A breadth-first search on soupified html. Will first scan the page for
@@ -190,14 +194,14 @@ class Ironman(object):
             # TODO Handle when the current page is not an HTML file. This should
             # done either here or in parse?
             try:
-                curSoup = parseSource(curPage)
+                curSoup = self.parseSource(curPage)
             except IOError:
                 continue
             # Gets all the links on the page that point
             # to somewhere within the domain. It also checks to
             # see if external links in <script> and <img> tags
             # are flagged by google to be malicious.
-            curHrefs = findPages(curSoup, domainUrl, curPage)
+            curHrefs = self.findLinks(curSoup)
 
             # Checks to see if any of the found, valid links have
             # already been visited or found
@@ -209,6 +213,6 @@ class Ironman(object):
 if __name__=="__main__":
     # sample testing
     starting_url = "http://lyle.smu.edu/~fmoore"
-    yolo = Ironman(starting_url, treat_as_host=True)
-    nodes = yolo.crawl()
+    yolo = Ironman(starting_url, treat_as_domain=True)
+    nodes = yolo.crawl(starting_url)
     print set(nodes)
