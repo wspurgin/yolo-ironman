@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python
 # Will Spurgin
 # 4/23/2014
 # yolo-ironman Ironman
