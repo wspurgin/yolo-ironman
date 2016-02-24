@@ -137,7 +137,7 @@ class Ironman(object):
         """
         # TODO Use different parser based on content types?
         source = source.content
-        return BeautifulSoup(source, "html.parser")
+        return BeautifulSoup(source)
 
     def findLinks(self, htmlSoup, current_url):
         """
@@ -159,9 +159,7 @@ class Ironman(object):
 
     def getDomain(self, url):
         """
-        Utilizes Marie's domainGetter file to extract the registered
-        domain from the url. This will allow for easy comparisons
-        of whether a link is external or not.
+        This will allow for easy comparisons of whether a link is external or not.
         """
         return urlparse(url).netloc
 
