@@ -137,7 +137,7 @@ class Ironman(object):
         """
         # TODO Use different parser based on content types?
         source = source.content
-        return BeautifulSoup(source)
+        return BeautifulSoup(source, "lxml")
 
     def findLinks(self, html_soup, current_url):
         """
