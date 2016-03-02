@@ -139,7 +139,7 @@ class Ironman(object):
         source = source.content
         return BeautifulSoup(source)
 
-    def findLinks(self, htmlSoup, current_url):
+    def findLinks(self, html_soup, current_url):
         """
         Takes in a BeautifulSoup object from a soupified url. Searches through
         a webpage and returns all the links on the page.
@@ -147,7 +147,7 @@ class Ironman(object):
         # Finds all the tags in the soup, and stores only the href
         # and src attributes.
         links = []
-        tags = htmlSoup.find_all(href=True) + htmlSoup.find_all(src=True)
+        tags = html_soup.find_all(href=True) + html_soup.find_all(src=True)
         for tag in tags:
             if tag.get('href') is not None:
                 links.append(tag['href'])
@@ -175,38 +175,38 @@ class Ironman(object):
         # Creates a queue of pages to soupify and check for
         # links, and a list of pages already visited, and links to external
         # hosts.
-        hrefQueue = deque([html])
-        depthDict = {html: 0}
-        numPages = 0
-        visitedHrefs = []
-        externalHrefs = []
-        while hrefQueue:
+        href_queue = deque([html])
+        depth_dict = {html: 0}
+        num_pages = 0
+        visited_hrefs = []
+        external_hrefs = []
+        while href_queue:
             # Gets the next link in BFS order
-            curPage = hrefQueue.popleft()
+            cur_page = href_queue.popleft()
             # Adds the current page to the pages that have
             # been visited.
-            visitedHrefs.append(curPage)
+            visited_hrefs.append(curPage)
             # Returns the BeautifulSoup of this page. An exception
             # is raised if parseSource tries to open a local file
             # that doesn't exist
             # TODO Handle when the current page is not an HTML file. This should
             # done either here or in parse?
             try:
-                curSoup = self.parseSource(curPage)
+                cur_soup = self.parseSource(curPage)
             except IOError:
                 continue
             # Gets all the links on the page that point
             # to somewhere within the domain. It also checks to
             # see if external links in <script> and <img> tags
             # are flagged by google to be malicious.
-            curHrefs = self.findLinks(curSoup)
+            cur_hrefs = self.findLinks(curSoup)
 
             # Checks to see if any of the found, valid links have
             # already been visited or found
-            for href in curHrefs:
-                if href not in visitedHrefs and href not in hrefQueue:
-                    hrefQueue.append(href)
-                    depthDict[href] = curDepth+1
+            for href in cur_hrefs:
+                if href not in visited_hrefs and href not in href_queue:
+                    href_queue.append(href)
+                    depth_dict[href] = cur_depth+1
 
 if __name__=="__main__":
     # sample testing
