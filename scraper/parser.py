@@ -2,20 +2,14 @@
 # Will Spurgin
 # Joe St. Angelo
 
-import urllib
 import requests
-import re
 import string
 import lxml
 import sys
-import csv
 import hashlib
-import porter
 
-from robotparser import RobotFileParser
-from urlparse import urlparse
+from porter import PorterStemmer
 from bs4 import BeautifulSoup
-from collections import deque
 
 
 # "constants"
@@ -33,7 +27,6 @@ class Parser(object):
 		self.document_dict = {}
 		self.p = PorterStemmer()
 
-
 	def retrieveText(self, page_soup):
 		"""
 		Retrieves all the non-markup text from a webpage that
@@ -42,14 +35,23 @@ class Parser(object):
 		@page_soup: The soupified version of a webpage
 		"""
 		# Retrieve all the text of the page minus the html tags
-		page_text = page_soup.get_text()
+		page_text = str(page_soup.get_text())
 		# Stems and returns all the text
 		page_text = self.p.stemText(page_text)
 		# Create a hash to make sure there are no 100% duplicates in the pages
 		# The hex digest will also be used as the document ID, since they will be
 		# unique unless they are a duplicate
-		page_hash = hashlib.md5().update(page_text).hexdigest()
+		h = hashlib.md5()
+		h.update(page_text)
+		page_hash = h.hexdigest()
 		# If the page is not a duplicate
 		if page_hash not in self.document_dict:
 			self.document_dict[page_hash] = page_text
 
+if __name__ == "__main__":
+	test_url = "http://lyle.smu.edu/~jstangelo/IR/test.html"
+	req = requests.get(test_url)
+	page_soup = BeautifulSoup(req.content, "lxml")
+	p = Parser()
+	p.retrieveText(page_soup)
+	print p.document_dict

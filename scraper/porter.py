@@ -359,7 +359,11 @@ class PorterStemmer:
             # and forces it to lower-case.
             word = word.lower().strip(string.punctuation)
             # Updates each word in the text to its stemmed equivalent
-            word_list[idx] = self.stem(word.lower(), 0, len(word)-1)
+            word = self.stem(word.lower(), 0, len(word)-1)
+            # Strips remaining punctuation that the stemmer doesn't check for
+            # e.g. What's -> what' -> what
+            word = word.strip(string.punctuation)
+            word_list[idx] = word
         return " ".join(word_list)
 
 
