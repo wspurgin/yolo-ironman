@@ -30,6 +30,7 @@ release 2: July 2008
 """
 
 import sys
+import string
 
 class PorterStemmer:
 
@@ -343,25 +344,45 @@ class PorterStemmer:
         self.step5()
         return self.b[self.k0:self.k+1]
 
+    def stemText(self, page_text):
+        """
+        stemText will take a string with multiple words and
+        stem each word, and return the entire text with each
+        word being stemmed
+
+        @page_text: The entire text of a page
+        """
+        # Separates each word into its own element in a list
+        word_list = page_text.split()
+        for idx, word in enumerate(word_list):
+            # Strips punctuation off either side of the word
+            # and forces it to lower-case.
+            word = word.lower().strip(string.punctuation)
+            # Updates each word in the text to its stemmed equivalent
+            word_list[idx] = self.stem(word.lower(), 0, len(word)-1)
+        return " ".join(word_list)
+
+
 
 if __name__ == '__main__':
     p = PorterStemmer()
-    if len(sys.argv) > 1:
-        for f in sys.argv[1:]:
-            infile = open(f, 'r')
-            while 1:
-                output = ''
-                word = ''
-                line = infile.readline()
-                if line == '':
-                    break
-                for c in line:
-                    if c.isalpha():
-                        word += c.lower()
-                    else:
-                        if word:
-                            output += p.stem(word, 0,len(word)-1)
-                            word = ''
-                        output += c.lower()
-                print output,
-            infile.close()
+    # if len(sys.argv) > 1:
+    #     for f in sys.argv[1:]:
+    #         infile = open(f, 'r')
+    #         while 1:
+    #             output = ''
+    #             word = ''
+    #             line = infile.readline()
+    #             if line == '':
+    #                 break
+    #             for c in line:
+    #                 if c.isalpha():
+    #                     word += c.lower()
+    #                 else:
+    #                     if word:
+    #                         output += p.stem(word, 0,len(word)-1)
+    #                         word = ''
+    #                     output += c.lower()
+    #             print output,
+    #         infile.close()
+    print p.stemText("There is no such thing, :as a chicken in heat??")
