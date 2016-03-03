@@ -33,8 +33,8 @@ class Parser(object):
 		# Stems and returns all the text
 		page_text = self.p.stemText(page_text)
 		# Create a hash to make sure there are no 100% duplicates in the pages
-		# The hex digest will also be used as the document ID, since they will be
-		# unique unless they are a duplicate
+		# The hex digest will also be used as the document ID, since they will
+		# be unique unless they are a duplicate
 		h = hashlib.md5()
 		h.update(page_text)
 		page_hash = h.hexdigest()

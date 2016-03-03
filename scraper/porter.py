@@ -55,7 +55,8 @@ class PorterStemmer:
 
     def cons(self, i):
         """cons(i) is TRUE <=> b[i] is a consonant."""
-        if self.b[i] == 'a' or self.b[i] == 'e' or self.b[i] == 'i' or self.b[i] == 'o' or self.b[i] == 'u':
+        if self.b[i] == 'a' or self.b[i] == 'e' or self.b[i] == 'i' \
+                            or self.b[i] == 'o' or self.b[i] == 'u':
             return 0
         if self.b[i] == 'y':
             if i == self.k0:
@@ -117,14 +118,15 @@ class PorterStemmer:
         return self.cons(j)
 
     def cvc(self, i):
-        """cvc(i) is TRUE <=> i-2,i-1,i has the form consonant - vowel - consonant
-        and also if the second c is not w,x or y. this is used when trying to
-        restore an e at the end of a short  e.g.
+        """cvc(i) is TRUE <=> i-2,i-1,i has the form 
+        consonant - vowel - consonant and also if the second c is not w,x or y.
+        This is used when trying to restore an e at the end of a short  e.g.
 
            cav(e), lov(e), hop(e), crim(e), but
            snow, box, tray.
         """
-        if i < (self.k0 + 2) or not self.cons(i) or self.cons(i-1) or not self.cons(i-2):
+        if i < (self.k0 + 2) or not self.cons(i) or self.cons(i-1) \
+                                                 or not self.cons(i-2):
             return 0
         ch = self.b[i]
         if ch == 'w' or ch == 'x' or ch == 'y':
@@ -144,7 +146,10 @@ class PorterStemmer:
         return 1
 
     def setto(self, s):
-        """setto(s) sets (j+1),...k to the characters in the string s, readjusting k."""
+        """
+        setto(s) sets (j+1),...k to the characters in the string s, 
+        readjusting k.
+        """
         length = len(s)
         self.b = self.b[:self.j+1] + s + self.b[self.j+length+1:]
         self.k = self.j + length
@@ -199,7 +204,9 @@ class PorterStemmer:
                 self.setto("e")
 
     def step1c(self):
-        """step1c() turns terminal y to i when there is another vowel in the stem."""
+        """
+        step1c() turns terminal y to i when there is another vowel in the stem.
+        """
         if (self.ends("y") and self.vowelinstem()):
             self.b = self.b[:self.k] + 'i' + self.b[self.k+1:]
 
@@ -242,7 +249,9 @@ class PorterStemmer:
         # To match the published algorithm, delete this phrase
 
     def step3(self):
-        """step3() dels with -ic-, -full, -ness etc. similar strategy to step2."""
+        """
+        step3() dels with -ic-, -full, -ness etc. similar strategy to step2.
+        """
         if self.b[self.k] == 'e':
             if self.ends("icate"):     self.r("ic")
             elif self.ends("ative"):   self.r("")
@@ -256,7 +265,9 @@ class PorterStemmer:
             if self.ends("ness"):      self.r("")
 
     def step4(self):
-        """step4() takes off -ant, -ence etc., in context <c>vcvc<v>."""
+        """
+        step4() takes off -ant, -ence etc., in context <c>vcvc<v>.
+        """
         if self.b[self.k - 1] == 'a':
             if self.ends("al"): pass
             else: return
@@ -281,7 +292,8 @@ class PorterStemmer:
             elif self.ends("ent"): pass
             else: return
         elif self.b[self.k - 1] == 'o':
-            if self.ends("ion") and (self.b[self.j] == 's' or self.b[self.j] == 't'): pass
+            if self.ends("ion") and (self.b[self.j] == 's' or \
+                                     self.b[self.j] == 't'): pass
             elif self.ends("ou"): pass
             # takes care of -ous
             else: return
