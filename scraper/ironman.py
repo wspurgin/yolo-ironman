@@ -10,6 +10,7 @@ import string
 import lxml
 import sys
 import csv
+import pprint
 
 from robotparser import RobotFileParser
 from urlparse import urlparse
@@ -88,6 +89,11 @@ class Ironman(object):
         url_fragments = urlparse(full_url)
         is_travelable = True
         reason = "valid"
+        # TODO when the root/domain is non standard (like
+        # lyle.smu.edu/~wspurgin) and the robots.txt is meant to disallow
+        # directories like "/dontgohere" from that non standard root, the robot
+        # will think it means "lyle.smu.edu/dontgohere" not
+        # "lyle.smu.edu/~wspurgin/dontgohere"
         if not self.robot.can_fetch(__USER_AGENT__, full_url):
             is_travelable = False
             reason = "Robots.txt"
@@ -124,7 +130,12 @@ class Ironman(object):
         current_url = self.root if not current_url else current_url
         full_url = ""
         url_fragments = urlparse(url)
-        current_path = current_url if current_url.endswith("/") else current_url + "/"
+        current_path = current_url
+        match = re.match("^.*\/(.*\.\w*)$", current_path)
+        if match: # there is a file at the end of the url
+            file = match.group(1)
+            current_path = current_path[:-len(file)]
+        current_path = current_path if current_path.endswith("/") else current_path + "/"
 
         # If the URL doesn't have a scheme (e.g. http, https) then it is a
         # relative address.
@@ -132,11 +143,8 @@ class Ironman(object):
             # If the tag doesn't start with a slash, it's a relative address
             # from the current page
             if not url.startswith("/"):
-              # we have to remove the file path first through (to get parent
-              # directory)
-              current_path_without_file = current_path
-              match = re.match("^\/(.*)", current_path)
-              if match:
+                # we have to remove the file path first through (to get parent
+                # directory)
                 full_url = current_path + url
             else:
                 # the url is a relative address from the root, so remove the slash
@@ -195,11 +203,12 @@ class Ironman(object):
         # Creates a queue of pages to soupify and check for
         # links, and a list of pages already visited, and links to external
         # hosts.
-        if not start_url: start_url = self.root else start_url = start_url
+        start_url = self.root if not start_url else start_url
         href_queue = deque([start_url])
         num_pages = 0
         visited_hrefs = []
         external_hrefs = []
+        report = {}
         while href_queue:
             # Gets the next link in BFS order
             cur_url = href_queue.popleft()
@@ -209,23 +218,20 @@ class Ironman(object):
             # been visited.
             visited_hrefs.append(full_url)
 
-            print "(%s, %s)" % (full_url, reason)
+            # Add to report
+            report[full_url] = reason
 
             # Returns the BeautifulSoup of this page. An exception
             # is raised if parseSource tries to open a local file
             # that doesn't exist
-            # TODO Handle when the current page is not an HTML file. This should
-            # done either here or in parse?
             if request is None:
-              print "%s was not travelable because '%s'" % (full_url, reason)
-              # TODO add to bad url list for accounting purposes?
               continue
             elif request.status_code != requests.codes.ok:
-              print "%s returned %i" % (full_url, request.status_code)
+              report[full_url] = "Returned %i" % request.status_code
               # TODO add to bad url list for accounting purposes?
               continue
             elif request.headers['content-type'] not in self.parsableContentTypes():
-              print "%s does not have a parsable content type" % full_url
+              report[full_url] = "Does not have a parsable content type"
               # TODO add to bad url list for accounting purposes?
               continue
             try:
@@ -243,9 +249,38 @@ class Ironman(object):
             for href in cur_hrefs:
                 if href not in visited_hrefs and href not in href_queue:
                     href_queue.append(href)
+        return report
 
 if __name__=="__main__":
     # sample testing
     starting_url = "http://lyle.smu.edu/~fmoore"
     yolo = Ironman(starting_url, treat_as_root=True)
-    yolo.spiderForLinks()
+
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+    subject = "Ironman"
+
+    # Test construction of URL
+    current_url = starting_url + "/index.htm"
+    target_url = "schedule.htm"
+    resulting_url = yolo.constructUrl(target_url, current_url)
+    expected_url = starting_url + "/" + target_url
+    expectation = subject + " should construct relative address from current url: "
+    if resulting_url == expected_url:
+        print OKGREEN + expectation + "PASS"
+        print ("%s == %s" % (resulting_url, expected_url)) + ENDC
+    else:
+        print FAIL + expectation + "FAIL"
+        print ("%s != %s" % (resulting_url, expected_url)) + ENDC
+        exit(1)
+
+    # Test full crawl
+    report = yolo.spiderForLinks()
+    pprint.pprint(report)
