@@ -30,13 +30,14 @@ class Indexer(object):
 		# number of total occurences, and the number of documents
 		# it appears in.
 		self.word_freq = {}
+		self.word_sorted = []
 
 	def indexWords(self, doc_dic):
 		"""
 		Reads each word in the dociment_dic and creates an inverse doc list
-		with also its frequency in that document. The inverse doc is a dictionary
-		that relates each word to a list that contains tuples of the docID, and the 
-		frequency of that word in that doc.
+		with also its frequency in that document. The inverse doc is a 
+		dictionary that relates each word to a list that contains tuples of the
+		docID, and the frequency of that word in that doc.
 		E.g.
 		the => [(doc1, 4), (doc2, 3), (doc3, 6)]
 		banana => [(doc1, 1), (doc3, 1)]
@@ -88,17 +89,37 @@ class Indexer(object):
 					# Adds the word to frequency tracker. First number
 					# is the doc frequency, second is the collection frequency
 					self.word_freq[word] = [1, 1]
+		# Creates a list of tuples sorted by the total frequency of a 
+		# word throughout the entire collection
+		self.word_sorted = sorted(self.word_freq.items(), \
+								  key=lambda word: word[1], reverse=True)
 
-	def findMostFreq(self, top_x=20):
+	def printMostFreq(self, top_x=20):
 		"""
-		Finds the most frequent words in the entire collection,
-		and returns a certain amount.
+		Prints the most frequent words up until a specified number in a 
+		readable table.
 
 		@top_x: The top x number of results to return. By default, it
 		returns the top 20 most frequent results
 		"""
-		#TODO: This
-		print "This may be unnecessary"
+		# Iterator
+		i = 0
+		# The table header, so to speak
+		print "{0:>15} | {1:>15} | {2:>14}".format("Word", "Total Frequency",\
+												   "# of Documents")
+		# Goes through the list of sorted words until it reaches the specified
+		# limit top_x
+		for word in self.word_sorted:
+			# Prints out the top x results in a formatted string. In order of
+			# Word, Total Frequency, # of Document. word[1] is a 2-list that
+			# contains, in this order, the document and total frequency
+			print "{0:>15}   {1:15d}  {2:14d}".format(word[0], word[1][1],\
+													  word[1][0])
+			i += 1
+			if i >= top_x: break
+
+
+		
 
 
 if __name__ == "__main__":
@@ -113,5 +134,6 @@ if __name__ == "__main__":
 	doc_dic = {doc_id: doc_text}
 	i = Indexer()
 	i.indexWords(doc_dic)
-	print i.word_index
+	i.word_index
+	i.findMostFreq()
 
