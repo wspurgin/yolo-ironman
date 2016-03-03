@@ -67,12 +67,10 @@ class Ironman(object):
         full_url = self.constructUrl(url)
         is_travelable, reason = self.isTravelable(full_url, include_reason=True)
         # TODO actually handle the return from a crawl...
+        req = None
         if is_travelable:
             req = requests.get(full_url)
-            nodeSoup = self.parseSource(req)
-            return self.findLinks(nodeSoup, full_url)
-        else:
-            return (url, reason)
+        return (full_url, reason, req)
 
     def isTravelable(self, full_url, include_reason=False):
         """
@@ -87,11 +85,25 @@ class Ironman(object):
 
         @returns a tuple of (is_travelable:boolean, reason:string)
         """
-        # TODO First check if scheme is supported
-        # TODO Check content types?
         url_fragments = urlparse(full_url)
         is_travelable = True
         reason = "valid"
+        if not self.robot.can_fetch(__USER_AGENT__, full_url):
+            is_travelable = False
+            reason = "Robots.txt"
+        elif url_fragments.scheme != "http" and url_fragments.scheme != "https":
+            is_travelable = False
+            reason = "Unsupported scheme %s" % url_fragments.scheme
+        else:
+          if self.treat_as_root:
+            url_without_scheme = re.sub(r'https?:\/\/', "", full_url)
+            if not url_without_scheme.startswith((self.domain)):
+              is_travelable = False
+              reason = "External URL"
+          else:
+            if url_fragments.netloc == self.domain:
+              is_travelable = False
+              reason = "External URL"
 
         if include_reason:
             return (is_travelable, reason)
@@ -120,6 +132,11 @@ class Ironman(object):
             # If the tag doesn't start with a slash, it's a relative address
             # from the current page
             if not url.startswith("/"):
+              # we have to remove the file path first through (to get parent
+              # directory)
+              current_path_without_file = current_path
+              match = re.match("^\/(.*)", current_path)
+              if match:
                 full_url = current_path + url
             else:
                 # the url is a relative address from the root, so remove the slash
@@ -163,9 +180,12 @@ class Ironman(object):
         """
         return urlparse(url).netloc
 
+    def parsableContentTypes(self):
+      return ["text/html", "text/plain", "text/xml"]
+
 
     # TODO this method still needs refactoring
-    def spiderForLinks(self, html, limit=None):
+    def spiderForLinks(self, start_url=None, limit=None):
         """
         A breadth-first search on soupified html. Will first scan the page for
         links. If the page is clean, then continue onto a page that this page
@@ -175,42 +195,57 @@ class Ironman(object):
         # Creates a queue of pages to soupify and check for
         # links, and a list of pages already visited, and links to external
         # hosts.
-        href_queue = deque([html])
-        depth_dict = {html: 0}
+        if not start_url: start_url = self.root else start_url = start_url
+        href_queue = deque([start_url])
         num_pages = 0
         visited_hrefs = []
         external_hrefs = []
         while href_queue:
             # Gets the next link in BFS order
-            cur_page = href_queue.popleft()
+            cur_url = href_queue.popleft()
+            full_url, reason, request = self.crawl(cur_url)
+
             # Adds the current page to the pages that have
             # been visited.
-            visited_hrefs.append(curPage)
+            visited_hrefs.append(full_url)
+
+            print "(%s, %s)" % (full_url, reason)
+
             # Returns the BeautifulSoup of this page. An exception
             # is raised if parseSource tries to open a local file
             # that doesn't exist
             # TODO Handle when the current page is not an HTML file. This should
             # done either here or in parse?
+            if request is None:
+              print "%s was not travelable because '%s'" % (full_url, reason)
+              # TODO add to bad url list for accounting purposes?
+              continue
+            elif request.status_code != requests.codes.ok:
+              print "%s returned %i" % (full_url, request.status_code)
+              # TODO add to bad url list for accounting purposes?
+              continue
+            elif request.headers['content-type'] not in self.parsableContentTypes():
+              print "%s does not have a parsable content type" % full_url
+              # TODO add to bad url list for accounting purposes?
+              continue
             try:
-                cur_soup = self.parseSource(curPage)
+                cur_soup = self.parseSource(request)
             except IOError:
                 continue
             # Gets all the links on the page that point
             # to somewhere within the domain. It also checks to
             # see if external links in <script> and <img> tags
             # are flagged by google to be malicious.
-            cur_hrefs = self.findLinks(curSoup)
+            cur_hrefs = self.findLinks(cur_soup, full_url)
 
             # Checks to see if any of the found, valid links have
             # already been visited or found
             for href in cur_hrefs:
                 if href not in visited_hrefs and href not in href_queue:
                     href_queue.append(href)
-                    depth_dict[href] = cur_depth+1
 
 if __name__=="__main__":
     # sample testing
     starting_url = "http://lyle.smu.edu/~fmoore"
-    yolo = Ironman(starting_url, treat_as_domain=True)
-    nodes = yolo.crawl(starting_url)
-    print set(nodes)
+    yolo = Ironman(starting_url, treat_as_root=True)
+    yolo.spiderForLinks()
