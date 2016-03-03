@@ -11,12 +11,6 @@ import hashlib
 from porter import PorterStemmer
 from bs4 import BeautifulSoup
 
-
-# "constants"
-__ROBOTS_TXT__ = "/robots.txt" # relative address of robots.txt from host
-__USER_AGENT__ = "*"           # user agent to check in robots.txt
-__HTTP__       = "http"
-
 class Parser(object):
 	"""
 	The parsing workhorse of the entire project.

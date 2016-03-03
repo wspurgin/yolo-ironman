@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+# This file modified by
+# Joe St. Angelo
+# Will Spurgin
 
 """Porter Stemming Algorithm
 This is the Porter stemming algorithm, ported to Python from the
