@@ -251,36 +251,3 @@ class Ironman(object):
                     href_queue.append(href)
         return report
 
-if __name__=="__main__":
-    # sample testing
-    starting_url = "http://lyle.smu.edu/~fmoore"
-    yolo = Ironman(starting_url, treat_as_root=True)
-
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
-    subject = "Ironman"
-
-    # Test construction of URL
-    current_url = starting_url + "/index.htm"
-    target_url = "schedule.htm"
-    resulting_url = yolo.constructUrl(target_url, current_url)
-    expected_url = starting_url + "/" + target_url
-    expectation = subject + " should construct relative address from current url: "
-    if resulting_url == expected_url:
-        print OKGREEN + expectation + "PASS"
-        print ("%s == %s" % (resulting_url, expected_url)) + ENDC
-    else:
-        print FAIL + expectation + "FAIL"
-        print ("%s != %s" % (resulting_url, expected_url)) + ENDC
-        exit(1)
-
-    # Test full crawl
-    report = yolo.spiderForLinks()
-    pprint.pprint(report)
