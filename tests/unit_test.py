@@ -31,7 +31,7 @@ class Describe(object):
                 print self.describer.OKGREEN
             else:
                 self.describer.failures += 1
-                result =  " (Failed %i)" % self.describer.failues
+                result =  " (Failed %i)" % self.describer.failures
                 print self.describer.FAIL
             print self.expectation + result + self.describer.ENDC
 

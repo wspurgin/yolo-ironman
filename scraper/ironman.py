@@ -13,7 +13,7 @@ import csv
 import pprint
 
 from robot import Robot
-from urlparse import urlparse
+from urlparse import urlparse, urljoin
 from bs4 import BeautifulSoup
 from collections import deque
 
@@ -44,9 +44,11 @@ class Ironman(object):
         if self.treat_as_root:
             self.root = self.starting_url
             self.domain = parts.netloc + parts.path
+            self.root_path = parts.path
         else:
             self.root = __HTTP__ + "://" + parts.netloc
             self.domain = parts.netloc
+            self.root_path = "/"
 
         # Add an ending slash to the root if it doesn't already have one. This
         # doesn't affect the URL results, but helps when having to deal with
@@ -96,7 +98,7 @@ class Ironman(object):
         # "lyle.smu.edu/~wspurgin/dontgohere"
         if not self.robot.can_fetch(__USER_AGENT__, full_url):
             is_travelable = False
-            reason = "Robots.txt"
+            reason = "Robots.txt Disallowed"
         elif url_fragments.scheme != "http" and url_fragments.scheme != "https":
             is_travelable = False
             reason = "Unsupported scheme %s" % url_fragments.scheme
@@ -128,31 +130,13 @@ class Ironman(object):
         """
         # Guard statement for if current_url is not given.
         current_url = self.root if not current_url else current_url
-        full_url = ""
-        url_fragments = urlparse(url)
-        current_path = current_url
-        match = re.match("^.*\/(.*\.\w*)$", current_path)
-        if match: # there is a file at the end of the url
-            file = match.group(1)
-            current_path = current_path[:-len(file)]
-        current_path = current_path if current_path.endswith("/") else current_path + "/"
+        target_url = url
+        if target_url.startswith("/") and self.treat_as_root:
+            # The target url is relative from root, and we have a non-standard
+            # root location
+            target_url = self.root_path + url
 
-        # If the URL doesn't have a scheme (e.g. http, https) then it is a
-        # relative address.
-        if not url_fragments.scheme:
-            # If the tag doesn't start with a slash, it's a relative address
-            # from the current page
-            if not url.startswith("/"):
-                # we have to remove the file path first through (to get parent
-                # directory)
-                full_url = current_path + url
-            else:
-                # the url is a relative address from the root, so remove the slash
-                path = url[1::]
-                full_url = self.root + path
-        else:
-            full_url = url
-        return full_url
+        return urljoin(current_url, target_url)
 
 
     def parseSource(self, source):

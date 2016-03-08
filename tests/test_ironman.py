@@ -7,6 +7,8 @@ if __name__=="__main__":
     # Test Ironman.constructUrl
     subject = "Ironman#constructUrl"
     described = Describe(subject)
+
+    # test relative addressing
     test = described.it("should construct relative address from current url")
 
     # Set up test variables
@@ -23,3 +25,32 @@ if __name__=="__main__":
 
     test.expect(resulting_url == expected_url)
 
+    # test relative path resolvement
+    test = described.it("should resolve relative positioning in address")
+    current_url = starting_url + "/misc/"
+    target_url = "../dontgohere"
+    resulting_url = yolo.constructUrl(target_url, current_url)
+    expected_url = starting_url + "/dontgohere"
+
+    test.expect(resulting_url == expected_url)
+
+    # test external url
+    test = described.it("should not alter any external urls")
+    target_url = "http://smu.edu/lyle"
+    test.expect(yolo.constructUrl(target_url, current_url) == target_url)
+
+    # test it should handle relative address from the root
+    test = described.it("should resolve relative addressing from root for non-standard root locations")
+    current_url = starting_url + "/misc/silly/programs.html"
+    target_url = "/foo"
+    expected_url = starting_url + target_url
+    resulting_url = yolo.constructUrl(target_url, current_url)
+    test.expect(resulting_url == expected_url)
+
+    test = described.it("should resolve relative addressing from root for standard root locations")
+    yolo = Ironman(starting_url)
+    current_url = starting_url + "/misc/silly/programs.html"
+    target_url = "/foo"
+    expected_url = "http://lyle.smu.edu" + target_url
+    resulting_url = yolo.constructUrl(target_url, current_url)
+    test.expect(resulting_url == expected_url)
