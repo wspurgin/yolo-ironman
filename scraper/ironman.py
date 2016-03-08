@@ -12,7 +12,7 @@ import sys
 import csv
 import pprint
 
-from robotparser import RobotFileParser
+from robot import Robot
 from urlparse import urlparse
 from bs4 import BeautifulSoup
 from collections import deque
@@ -60,7 +60,7 @@ class Ironman(object):
 
     def updateRobots(self):
         if self.robot is None:
-            self.robot = RobotFileParser()
+            self.robot = Robot()
             self.robot.set_url(self.robots_url)
         self.robot.read()
 
