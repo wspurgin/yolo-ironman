@@ -18,7 +18,7 @@ class Parser(object):
 
 	def __init__(self, **kwargs):
 		super(Parser, self).__init__()
-		self.document_dict = {}
+		self.documents = {}
 		self.p = PorterStemmer()
 
 	def retrieveText(self, page_soup):
@@ -39,8 +39,8 @@ class Parser(object):
 		h.update(page_text)
 		page_hash = h.hexdigest()
 		# If the page is not a duplicate
-		if page_hash not in self.document_dict:
-			self.document_dict[page_hash] = page_text
+		if page_hash not in self.documents:
+			self.documents[page_hash] = page_text
 
 if __name__ == "__main__":
 	test_url = "http://lyle.smu.edu/~jstangelo/IR/test.html"
@@ -48,4 +48,4 @@ if __name__ == "__main__":
 	page_soup = BeautifulSoup(req.content, "lxml")
 	p = Parser()
 	p.retrieveText(page_soup)
-	print p.document_dict
+	print p.documents

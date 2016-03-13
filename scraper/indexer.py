@@ -32,7 +32,7 @@ class Indexer(object):
 		self.word_freq = {}
 		self.word_sorted = []
 
-	def indexWords(self, doc_dic):
+	def indexWords(self, documents):
 		"""
 		Reads each word in the dociment_dic and creates an inverse doc list
 		with also its frequency in that document. The inverse doc is a 
@@ -43,9 +43,9 @@ class Indexer(object):
 		banana => [(doc1, 1), (doc3, 1)]
 		"""
 		# Goes through all the documents in the dictionary
-		for key in doc_dic:
+		for key in documents:
 			# Grabs each document's text
-			doc_text = doc_dic[key]
+			doc_text = documents[key]
 			# Splits the text up into individual words in a list
 			word_list = doc_text.split()
 			# Goes through each word
@@ -131,9 +131,9 @@ if __name__ == "__main__":
 	click here to go to test2.html have you seen my sock what the deal \
 	with airplan peanut fat chicken man h p faaaart hello i love lasagna"
 	doc_id = "doc1"
-	doc_dic = {doc_id: doc_text}
+	documents = {doc_id: doc_text}
 	i = Indexer()
-	i.indexWords(doc_dic)
+	i.indexWords(documents)
 	i.word_index
 	i.findMostFreq()
 
