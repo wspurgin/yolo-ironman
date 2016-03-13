@@ -54,3 +54,17 @@ if __name__=="__main__":
     expected_url = "http://lyle.smu.edu" + target_url
     resulting_url = yolo.constructUrl(target_url, current_url)
     test.expect(resulting_url == expected_url)
+
+# ======================== #
+
+    subject = "Ironman#spiderForLinks"
+    described = Describe(subject)
+    yolo = Ironman(starting_url, treat_as_root=True)
+
+    test = described.it("should take a limit keyword argument that controls how many URLs are visited")
+    res = yolo.spiderForLinks(limit=1)
+    test.expect(len(res) == 1)
+
+    test = described.it("should populate ironman's intance report and 'good_soup'")
+    yolo.spiderForLinks(limit=2)
+    test.expect(len(yolo.good_soup) > 0 and len(yolo.report) == 2)

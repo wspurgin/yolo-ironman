@@ -37,7 +37,8 @@ class Ironman(object):
         super(Ironman, self).__init__()
         self.starting_url = starting_url
         self.treat_as_root = treat_as_root
-        self.external_links = []
+        self.report = {}
+        self.good_soup = []
         self.robot = None
 
         parts = urlparse(self.starting_url)
@@ -90,12 +91,7 @@ class Ironman(object):
         """
         url_fragments = urlparse(full_url)
         is_travelable = True
-        reason = "valid"
-        # TODO when the root/domain is non standard (like
-        # lyle.smu.edu/~wspurgin) and the robots.txt is meant to disallow
-        # directories like "/dontgohere" from that non standard root, the robot
-        # will think it means "lyle.smu.edu/dontgohere" not
-        # "lyle.smu.edu/~wspurgin/dontgohere"
+        reason = "Valid"
         if not self.robot.can_fetch(__USER_AGENT__, full_url):
             is_travelable = False
             reason = "Robots.txt Disallowed"
@@ -176,7 +172,6 @@ class Ironman(object):
       return ["text/html", "text/plain", "text/xml"]
 
 
-    # TODO this method still needs refactoring
     def spiderForLinks(self, start_url=None, limit=None):
         """
         A breadth-first search on soupified html. Will first scan the page for
@@ -191,9 +186,13 @@ class Ironman(object):
         href_queue = deque([start_url])
         num_pages = 0
         visited_hrefs = []
-        external_hrefs = []
-        report = {}
+        self.report = {}
+        self.good_soup = []
         while href_queue:
+            # Guard statement to ensure we observe a limit (if one is given).
+            if limit and len(visited_hrefs) == limit:
+                break
+
             # Gets the next link in BFS order
             cur_url = href_queue.popleft()
             full_url, reason, request = self.crawl(cur_url)
@@ -203,35 +202,37 @@ class Ironman(object):
             visited_hrefs.append(full_url)
 
             # Add to report
-            report[full_url] = reason
+            self.report[full_url] = reason
 
-            # Returns the BeautifulSoup of this page. An exception
-            # is raised if parseSource tries to open a local file
-            # that doesn't exist
             if request is None:
               continue
             elif request.status_code != requests.codes.ok:
-              report[full_url] = "Returned %i" % request.status_code
+              self.report[full_url] = "Returned %i" % request.status_code
               # TODO add to bad url list for accounting purposes?
               continue
             elif request.headers['content-type'] not in self.parsableContentTypes():
-              report[full_url] = "Does not have a parsable content type"
+              self.report[full_url] = "Does not have a parsable content type"
               # TODO add to bad url list for accounting purposes?
               continue
+
+            #  lxml will raise a Syntax error if the document is malformed
             try:
                 cur_soup = self.parseSource(request)
-            except IOError:
+            except lxml.etree.XMLSyntaxError as e:
+                self.report[full_url] = "Parsing content failed with an \
+                    exception: " + str(e)
                 continue
             # Gets all the links on the page that point
             # to somewhere within the domain. It also checks to
             # see if external links in <script> and <img> tags
             # are flagged by google to be malicious.
             cur_hrefs = self.findLinks(cur_soup, full_url)
+            self.good_soup.append(cur_soup)
 
             # Checks to see if any of the found, valid links have
             # already been visited or found
             for href in cur_hrefs:
                 if href not in visited_hrefs and href not in href_queue:
                     href_queue.append(href)
-        return report
+        return self.report
 
