@@ -10,9 +10,10 @@ import string
 import lxml
 import sys
 import csv
-import pprint
+import time
 
 from robot import Robot
+from crawl import Crawl
 from urlparse import urlparse, urljoin
 from bs4 import BeautifulSoup
 from collections import deque
@@ -74,7 +75,7 @@ class Ironman(object):
         req = None
         if is_travelable:
             req = requests.get(full_url)
-        return (full_url, reason, req)
+        return Crawl(full_url, reason, req)
 
     def isTravelable(self, full_url, include_reason=False):
         """
@@ -172,7 +173,7 @@ class Ironman(object):
       return ["text/html", "text/plain", "text/xml"]
 
 
-    def spiderForLinks(self, start_url=None, limit=None):
+    def spiderForLinks(self, start_url=None, limit=None, politeness_factor=2):
         """
         A breadth-first search on soupified html. Will first scan the page for
         links. If the page is clean, then continue onto a page that this page
@@ -188,40 +189,61 @@ class Ironman(object):
         visited_hrefs = []
         self.report = {}
         self.good_soup = []
+        requests_made = 0
+        last_request_time = 0
         while href_queue:
             # Guard statement to ensure we observe a limit (if one is given).
-            if limit and len(visited_hrefs) == limit:
+            if limit and requests_made == limit:
                 break
+
+            # Politely give the server a break from our bombardment based on
+            # politeness_factor
+            time.sleep(politeness_factor * last_request_time)
 
             # Gets the next link in BFS order
             cur_url = href_queue.popleft()
-            full_url, reason, request = self.crawl(cur_url)
+            crawl = self.crawl(cur_url)
+            full_url, reason, response = [crawl.url, crawl.reason, crawl.response]
 
             # Adds the current page to the pages that have
             # been visited.
             visited_hrefs.append(full_url)
 
-            # Add to report
-            self.report[full_url] = reason
+            # Ensure report has a spot for the results
+            if reason not in self.report:
+                self.report[reason] = []
 
-            if request is None:
+            # There may be no response if a request was never attempted (e.g.
+            # it was an external link)
+            if response is None:
+              self.report[reason].append(crawl)
               continue
-            elif request.status_code != requests.codes.ok:
-              self.report[full_url] = "Returned %i" % request.status_code
-              # TODO add to bad url list for accounting purposes?
-              continue
-            elif request.headers['content-type'] not in self.parsableContentTypes():
-              self.report[full_url] = "Does not have a parsable content type"
-              # TODO add to bad url list for accounting purposes?
-              continue
+
+            last_request_time = response.elapsed.total_seconds()
+            requests_made += 1
+
+            skip = False
+            if response.status_code != requests.codes.ok:
+              crawl.reason = "Returned %i" % response.status_code
+              skip = True
+            elif response.headers['content-type'] not in self.parsableContentTypes():
+              crawl.reason = "Does not have a parsable content type"
+              skip = True
 
             #  lxml will raise a Syntax error if the document is malformed
             try:
-                cur_soup = self.parseSource(request)
+                cur_soup = self.parseSource(response)
             except lxml.etree.XMLSyntaxError as e:
-                self.report[full_url] = "Parsing content failed with an \
+                crawl.reason = "Parsing content failed with an \
                     exception: " + str(e)
+                skip = True
+
+            # Add to report
+            self.report[reason].append(crawl)
+
+            if skip:
                 continue
+
             # Gets all the links on the page that point
             # to somewhere within the domain. It also checks to
             # see if external links in <script> and <img> tags
