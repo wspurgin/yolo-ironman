@@ -44,4 +44,35 @@ instructions](http://docs.python-requests.org/en/latest/user/install/).
 
 ### TODO Any further dependencies
 
+## Ironman Description and Specification
 
+### Robot
+
+- The wrapper class around python's `RobotFileParser` class that supports
+  non-standard locations of `robots.txt` files.
+- An example:
+
+```python
+# robots.txt
+# located at: http://lyle.smu.edu/~wspurgin/robots.txt
+# User-agent: *
+# Disallow: /dontgohere/
+
+# RobotFileParser from robotparser
+r = RobotFileParser()
+r.set_url("http://lyle.smu.edu/~wspurgin/robots.txt")
+r.read()
+
+# ✗ This result was not intended by the creator of the robots.txt
+r.can_fetch("http://lyle.smu.edu/~wspurgin/dontgohere/")
+#  => True
+
+# Using Robot
+robot = Robot()
+robot.set_url("http://lyle.smu.edu/~wspurgin/robots.txt")
+robot.read()
+
+# ✓ This produces the result intended by the creator of the robots.txt
+robot.can_fetch("http://lyle.smu.edu/~wspurgin/dontgohere/")
+#  => False
+```
