@@ -359,7 +359,7 @@ class PorterStemmer:
         self.step5()
         return self.b[self.k0:self.k+1]
 
-    def stemText(self, page_text):
+    def stemText(self, page_text, stop_words):
         """
         stemText will take a string with multiple words and
         stem each word, and return the entire text with each
@@ -369,17 +369,20 @@ class PorterStemmer:
         """
         # Separates each word into its own element in a list
         word_list = page_text.split()
-        for idx, word in enumerate(word_list):
+        stemmed_words = []
+        for word in word_list:
             # Strips punctuation off either side of the word
             # and forces it to lower-case.
             word = word.lower().strip(string.punctuation)
+            # Checks to see if the word is 
+            if stop_words is not None and word in stop_words: continue
             # Updates each word in the text to its stemmed equivalent
             word = self.stem(word.lower(), 0, len(word)-1)
             # Strips remaining punctuation that the stemmer doesn't check for
             # e.g. What's -> what' -> what
             word = word.strip(string.punctuation)
-            word_list[idx] = word
-        return " ".join(word_list)
+            stemmed_words.append(word)
+        return " ".join(stemmed_words)
 
 
 
