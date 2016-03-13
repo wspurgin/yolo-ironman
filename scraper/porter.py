@@ -359,7 +359,7 @@ class PorterStemmer:
         self.step5()
         return self.b[self.k0:self.k+1]
 
-    def stemText(self, page_text, stop_words):
+    def stemText(self, page_text, stop_words=None):
         """
         stemText will take a string with multiple words and
         stem each word, and return the entire text with each
@@ -407,4 +407,4 @@ if __name__ == '__main__':
     #                     output += c.lower()
     #             print output,
     #         infile.close()
-    print p.stemText("There is no such thing, :as a chicken in heat??")
+    print p.stemText(u"There is no such thing, :as a chicken in heat??")

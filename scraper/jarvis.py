@@ -8,7 +8,7 @@ if __name__ == "__main__":
 	# the limit on the pages, and the second could either be a file
 	# name or a single stop word. In the event of the latter, a
 	# message is printed out to the console
-	if len(sys.argv == 3):
+	if len(sys.argv) == 3:
 		limit = sys.argv[1]
 		if limit.lower() is "none":
 			limit = None
@@ -22,14 +22,14 @@ if __name__ == "__main__":
 	# If there are greater than 3 command line arguments, then the
 	# first is the limit on the pages, and the rest are the stop 
 	# words that must be considered
-	elif len(sys.argv > 3):
+	elif len(sys.argv) > 3:
 		limit = sys.argv[1]
 		if limit.lower() == "none":
 			limit = None
 		words = sys.argv[2:]
 	# If there are only 2 command line arguments, then there is only
 	# a limit on the pages and no stop words to consider	
-	elif len(sys.argv == 2):
+	elif len(sys.argv) == 2:
 		limit = sys.argv[1]
 		if limit.lower() == "none":
 			limit = None

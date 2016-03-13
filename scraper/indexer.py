@@ -9,7 +9,7 @@ import string
 import lxml
 import sys
 import csv
-
+from operator import itemgetter
 from robotparser import RobotFileParser
 from urlparse import urlparse
 from bs4 import BeautifulSoup
@@ -70,7 +70,7 @@ class Indexer(object):
 							# 3. Grab the frequency value
 							# 4. Increment by 1
 							self.word_index[word][idx][1] += 1
-							self.word_freq[word][1] += 1
+							self.word_freq[word][0] += 1
 							found_word = True
 							break
 					# If this is the first occurence of this word in this
@@ -91,8 +91,7 @@ class Indexer(object):
 					self.word_freq[word] = [1, 1]
 		# Creates a list of tuples sorted by the total frequency of a 
 		# word throughout the entire collection
-		self.word_sorted = sorted(self.word_freq.items(), \
-								  key=lambda word: word[1], reverse=True)
+		self.word_sorted = sorted(self.word_freq.iteritems(), key=itemgetter(1), reverse=True)
 
 	def printMostFreq(self, top_x=20):
 		"""
@@ -113,8 +112,8 @@ class Indexer(object):
 			# Prints out the top x results in a formatted string. In order of
 			# Word, Total Frequency, # of Document. word[1] is a 2-list that
 			# contains, in this order, the document and total frequency
-			print "{0:>15}   {1:15d}  {2:14d}".format(word[0], word[1][1],\
-													  word[1][0])
+			print "{0:>15}   {1:15d}  {2:14d}".format(word[0], word[1][0],\
+													  word[1][1])
 			i += 1
 			if i >= top_x: break
 

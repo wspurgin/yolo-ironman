@@ -41,7 +41,7 @@ class Parser(object):
 		@page_soup: The soupified version of a webpage
 		"""
 		# Retrieve all the text of the page minus the html tags
-		page_text = str(page_soup.get_text())
+		page_text = page_soup.get_text()
 		# Stems and returns all the non-stopword text
 		page_text = self.p.stemText(page_text, self.stop_words)
 		# Create a hash to make sure there are no 100% duplicates in the pages
