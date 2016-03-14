@@ -17,7 +17,10 @@ You can clone this repository to gain access to the code of the project.
 git clone https://github.com/wspurgin/yolo-ironman
 ```
 
-After which you may run the crawler with TODO
+### Downloading Tarball
+
+Download the cutting edge latest version of Yolo-Ironman at
+https://github.com/wspurgin/yolo-ironman/archive/master.zip
 
 Dependencies
 ------------
