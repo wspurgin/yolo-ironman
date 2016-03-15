@@ -1,60 +1,60 @@
 1. A web crawler should do the following things:
 
 -Duplicate detection
-	We do a simple 100% duplication check by making a hash out of the text of 
-a document and using that as the document ID. That way, we know if 2 pages have 
-the same hash, they are duplicates of each other. This is explained more in
-question 5.
+  We do a simple 100% duplication check by making a hash out of the text of a
+  document and using that as the document ID. That way, we know if 2 pages have
+  the same hash, they are duplicates of each other. This is explained more in
+  question 5.
 
 -Scanning a page's content
-	We are able to scan a page's content very easily. BeautifulSoup will scan
-an html, htm, or txt document and allows for very quick retrieval of all of
-the text in the document. It also allows for searching for href attributes,
-making finding links very easy.
-	
+  We are able to scan a page's content very easily. BeautifulSoup will scan an
+  html, htm, or txt document and allows for very quick retrieval of all of the
+  text in the document. It also allows for searching for href attributes,
+  making finding links very easy.
+
 -Indexing the content of a page
-	By taking all the text in the page, we are able to take each word and index
-them, relating to documents and the number of times they appear in each document.
-By first making the text into a list (built in functionality of strings), we are
-able to check if a word has been found before, if it has been found in a specfic
-document before, and updating the index accordingly: Either adding the word entirely,
-updating the number of times it has appeared in a document, or adding the first
-occurence in a new document.
+  By taking all the text in the page, we are able to take each word and index
+  them, relating to documents and the number of times they appear in each
+  document.  By first making the text into a list (built in functionality of
+  strings), we are able to check if a word has been found before, if it has
+  been found in a specfic document before, and updating the index accordingly:
+  Either adding the word entirely, updating the number of times it has appeared
+  in a document, or adding the first occurence in a new document.
 
 -Being polite
-	We're taking the response times of our requests multiplying it by a politeness
-factor and waiting that amount of time before making that request. That way once 
-server becomes busier, our requests will be more delayed. We also scan the 
-robots.txt file in order to not accidentally crawl our way into a location that 
-the webmaster does not want crawled.
+  We're taking the response times of our requests multiplying it by a
+  politeness factor and waiting that amount of time before making that request.
+  That way once server becomes busier, our requests will be more delayed. We
+  also scan the robots.txt file in order to not accidentally crawl our way into
+  a location that the webmaster does not want crawled.
 
 -Finding connected pages from a page
-	This is done by scanning the html for hrefs, as stated above. We have
-BeautifulSoup search through all the tags for href or src attributes, and then we
-add them to a queue. Afterwards, it is determined whether we can actually go there,
-be it because of robots.txt or because the file type isn't an html, htm, or txt
-file.
+  This is done by scanning the html for hrefs, as stated above. We have
+  BeautifulSoup search through all the tags for href or src attributes, and
+  then we add them to a queue. Afterwards, it is determined whether we can
+  actually go there, be it because of robots.txt or because the file type isn't
+  an html, htm, or txt file.
 
 2. This question is answered by running jarvis.py The results are not suited to
 be shown in this format. It is recommended to make the console window maximized
-when running the program in order to make the results more legible 
+when running the program in order to make the results more legible
 
 3. See question 2
 
 4. There are 3 .jpg files in the collection
 
-5. The process that we do this can be found in the parser.py file, specifically
+5. The process that we do can be found in the parser.py file, specifically
 in the retrieveText function on line 36. On line 44, the .get_text() function
 returns only the text within tags, like so:
- 
- <p id="Hello">This is text</p>  ->  "This is text" 
+
+ <p id="Hello">This is text</p>  ->  "This is text"
 
  That function is specifically for BeautifulSoup objects, which we are using to
  grab URLs and parse the pages. We then hash the returned text after all the
  stop words have been removed and the remaining words stemmed to create the unique
  document ID. Because of the nature of hashes, we are assuming that if two hashes
  are the same, then they are considered to be 100% duplicate pages, and we ignore
- them. 
+ them.
 
 
 6. The following is also output from running jarvis.py
