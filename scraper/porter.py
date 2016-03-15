@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # This file modified by
 # Joe St. Angelo
 # Will Spurgin
@@ -34,6 +35,7 @@ release 2: July 2008
 
 import sys
 import string
+import re
 
 class PorterStemmer:
 
@@ -374,10 +376,17 @@ class PorterStemmer:
             # Strips punctuation off either side of the word
             # and forces it to lower-case.
             word = word.lower().strip(string.punctuation)
+            word, num = re.subn(ur'[—\p{P}\p{S}\p{N}\p{C}\p{Z}\p{M}]', '', word, flags=re.UNICODE)
+
+            if not word: continue
+
             # Checks to see if the word is 
             if stop_words is not None and word in stop_words: continue
+
             # Updates each word in the text to its stemmed equivalent
             word = self.stem(word.lower(), 0, len(word)-1)
+
+
             # Strips remaining punctuation that the stemmer doesn't check for
             # e.g. What's -> what' -> what
             word = word.strip(string.punctuation)

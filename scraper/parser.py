@@ -43,7 +43,7 @@ class Parser(object):
         # Retrieve all the text of the page minus the html tags
         page_text = page_soup.get_text()
         # Stems and returns all the non-stopword text
-        page_text = self.p.stemText(page_text, self.stop_words)
+        page_text = self.p.stemText(page_text, self.stop_words).encode('utf_8', 'ignore')
         # Create a hash to make sure there are no 100% duplicates in the pages
         # The hex digest will also be used as the document ID, since they will
         # be unique unless they are a duplicate

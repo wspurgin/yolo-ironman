@@ -84,26 +84,37 @@ with the python 2.7 interpreter.
 
 ###Command Line Arguments
 There are a few arguments that can be passed:
-1. The limit on how many pages will be accessed
-2. Words that should be ignored when indexing the pages
+1. A target URL to crawl
+2. The limit on how many pages will be accessed
+3. Words that should be ignored when indexing the pages
 
-The first argument must either be a non-negative integer, or the word 'none'.
+The first argument must either be a valid URL (including scheme), or the word
+'none'
 ```
-~/yolo-ironman/scraper/$ python jarvis.py 20
+~/yolo-ironman/scraper/$ python jarvis.py http://lyle.smu.edu
 ~/yolo-ironman/scraper/$ python jarvis.py none
 ```
 
+If 'none' is specified, then the default address of http://lyle.smu.edu/~fmoore
+is crawled.
+
+The second argument must either be a non-negative integer, or the word 'none'.
+```
+~/yolo-ironman/scraper/$ python jarvis.py http://lyle.smu.edu 20
+~/yolo-ironman/scraper/$ python jarvis.py none none
+```
+
 Putting 1 will result in only the base URL being crawled (the first page), while
-putting 'none' will put no limit on the number of pages to be crawled. This is the
-default behavior, but it is necessary to put none if stop words need to be
+putting 'none' will put no limit on the number of pages to be crawled. This is
+the default behavior, but it is necessary to put none if stop words need to be
 included. Putting 0 will result in no pages being crawled.
 
-The second argument accepts varying values as well. It can either be a path to a txt
-file or a hand typed list of words on the command line
+The third argument accepts varying values as well. It can either be a path to a
+txt file or a hand typed list of words on the command line
 ```
-~/yolo-ironman/scraper/$ python jarvis.py 20 stopwords.txt
-~/yolo-ironman/scraper/$ python jarvis.py 20 these are all my stop words
-~/yolo-ironman/scraper/$ python jarvis.py none stopwords.txt
+~/yolo-ironman/scraper/$ python jarvis.py http://google.com 20 stopwords.txt
+~/yolo-ironman/scraper/$ python jarvis.py none 20 these are all my stop words
+~/yolo-ironman/scraper/$ python jarvis.py none none stopwords.txt
 ```
 
 The txt file MUST have words on separate lines:
@@ -115,6 +126,7 @@ My
 Stop
 Words
 ```
+
 Ironman Description
 -------------------
 
@@ -209,5 +221,7 @@ web-crawler-to-beat-all-web-crawlers! True. However, sometimes you just need a
 to have a good crawl and don't want to bother with writing a script and dealing
 with this output or reading through that class's docs. We get it. Jarvis is a
 handy-dandy command line program for just having a crawl. It'll crawl
-http://lyle.smu.edu/~fmoore and print out some nice summary things for you.
-Consider it an inspiration for when you want to write your own crawl. :wink:
+http://lyle.smu.edu/~fmoore by default and print out some nice summary things
+for you. However you can give it all kinds of <a
+href="user-content-command-line-arguments">command line arguemnts</a>!
+Consider it an inspiration for when you want to write your own crawl.  :wink:

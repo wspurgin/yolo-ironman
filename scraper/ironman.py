@@ -92,7 +92,7 @@ class Ironman(object):
         """
         url_fragments = urlparse(full_url)
         is_travelable = True
-        reason = "Valid"
+        reason = "Valid URL"
         if not self.robot.can_fetch(__USER_AGENT__, full_url):
             is_travelable = False
             reason = "Robots.txt Disallowed"
@@ -106,7 +106,7 @@ class Ironman(object):
               is_travelable = False
               reason = "External URL"
           else:
-            if url_fragments.netloc == self.domain:
+            if url_fragments.netloc != self.domain:
               is_travelable = False
               reason = "External URL"
 
@@ -169,8 +169,14 @@ class Ironman(object):
         """
         return urlparse(url).netloc
 
-    def parsableContentTypes(self):
-      return ["text/html", "text/plain", "text/xml"]
+    def isParsableContentType(self, content_type):
+      types = [r"text\/html", r"text\/plain", r"text\/xml"]
+      parsable = False
+      for type in types:
+          parsable = bool(re.match(type, content_type))
+          if parsable:
+              break
+      return parsable
 
 
     def spiderForLinks(self, start_url=None, limit=None, politeness_factor=2):
@@ -226,8 +232,8 @@ class Ironman(object):
             if response.status_code != requests.codes.ok:
               crawl.reason = "Returned %i" % response.status_code
               skip = True
-            elif response.headers['content-type'] not in self.parsableContentTypes():
-              crawl.reason = "Does not have a parsable content type"
+            elif not self.isParsableContentType(response.headers['content-type']):
+              crawl.reason = "Does not have a parsable content type: %s" % response.headers["content-type"]
               skip = True
 
             #  lxml will raise a Syntax error if the document is malformed
