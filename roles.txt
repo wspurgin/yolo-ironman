@@ -1,3 +1,5 @@
 Will:
 
 Joe:
+I wrote indexer.py, parser.py, jarvis.py, and made modifications to porter.py so
+that it will better suit our needs.

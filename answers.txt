@@ -1,5 +1,28 @@
-1. 
+1. A web crawler should do the following things:
 
+-Duplicate detection
+	We do a simple 100% duplication check by making a hash out of the text of 
+a document and using that as the document ID. That way, we know if 2 pages have 
+the same hash, they are duplicates of each other. This is explained more in
+question 5.
+
+-Scanning a page's content
+	We are able to scan a page's content very easily. BeautifulSoup will scan
+an html, htm, or txt document and allows for very quick retrieval of all of
+the text in the document. It also allows for searching for href attributes,
+making finding links very easy.
+	
+-Indexing the content of a page
+	By taking all the text in the page, we are able to take each word and index
+them, relating to documents and the number of times they appear in each document.
+By first making the text into a list (built in functionality of strings), we are
+able to check if a word has been found before, if it has been found in a specfic
+document before, and updating the index accordingly: Either adding the word entirely,
+updating the number of times it has appeared in a document, or adding the first
+occurence in a new document.
+
+-Finding connected pages from a page
+	This is done by scanning the html for hrefs. 
 2. This question is answered by running jarvis.py The results are not suited to
 be shown in this format. It is recommended to make the console window maximized
 when running the program in order to make the results more legible 
