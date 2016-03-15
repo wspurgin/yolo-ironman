@@ -21,8 +21,20 @@ document before, and updating the index accordingly: Either adding the word enti
 updating the number of times it has appeared in a document, or adding the first
 occurence in a new document.
 
+-Being polite
+	We're taking the response times of our requests multiplying it by a politeness
+factor and waiting that amount of time before making that request. That way once 
+server becomes busier, our requests will be more delayed. We also scan the 
+robots.txt file in order to not accidentally crawl our way into a location that 
+the webmaster does not want crawled.
+
 -Finding connected pages from a page
-	This is done by scanning the html for hrefs. 
+	This is done by scanning the html for hrefs, as stated above. We have
+BeautifulSoup search through all the tags for href or src attributes, and then we
+add them to a queue. Afterwards, it is determined whether we can actually go there,
+be it because of robots.txt or because the file type isn't an html, htm, or txt
+file.
+
 2. This question is answered by running jarvis.py The results are not suited to
 be shown in this format. It is recommended to make the console window maximized
 when running the program in order to make the results more legible 
