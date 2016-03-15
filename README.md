@@ -2,6 +2,8 @@ Yolo-Ironman
 ============
 
 The Yolo-Ironman project is a python implemented web crawler & web scrapper.
+<!-- view this file on the web here:
+https://github.com/wspurgin/yolo-ironman/blob/master/README.md -->
 
 Installation
 ------------
@@ -45,7 +47,20 @@ pip install requests
 You can also download the tarball, zipball, or use git following [these
 instructions](http://docs.python-requests.org/en/latest/user/install/).
 
-### 'BeautifulSoup' module
+### `lxml`module
+
+This project uses [lxml](https://pypi.python.org/pypi/lxml/2.3) as a pluggable
+parser into `BeautifulSoup` (discussed below). It is a powerful (and wickedly
+fast) XML parser. It can be installed using `pip`
+
+```
+pip install lxml
+```
+
+You can also install `lxml` natively on most Linux distributions or using  git
+following [these instructions.](http://lxml.de/installation.html)
+
+### `BeautifulSoup` module
 
 This project also uses [BeautifulSoup](http://www.crummy.com/software/BeautifulSoup/bs4/doc/). This can be easily utilized to look for
 all of the links in any given webpage, and to extract all the text that is not
@@ -55,18 +70,106 @@ related to html tags. It can be installed using `pip`.
 pip install beautifulsoup4
 ```
 
-You can also download the tarball which can be found on the BeautifulSoup
+You can also download the tarball which can be found on the `BeautifulSoup`
 documentation page.
 
-### TODO Any further dependencies
+Execution
+---------
 
-## Ironman Description and Specification
+To execute the program, simply run jarvis.py inside of the scraper folder
+with the python 2.7 interpreter.
+```
+~/yolo-ironman/scraper/$ python jarvis.py
+```
+
+###Command Line Arguments
+There are a few arguments that can be passed:
+1. The limit on how many pages will be accessed
+2. Words that should be ignored when indexing the pages
+
+The first argument must either be a non-negative integer, or the word 'none'.
+```
+~/yolo-ironman/scraper/$ python jarvis.py 20
+~/yolo-ironman/scraper/$ python jarvis.py none
+```
+
+Putting 1 will result in only the base URL being crawled (the first page), while
+putting 'none' will put no limit on the number of pages to be crawled. This is the
+default behavior, but it is necessary to put none if stop words need to be
+included. Putting 0 will result in no pages being crawled.
+
+The second argument accepts varying values as well. It can either be a path to a txt
+file or a hand typed list of words on the command line
+```
+~/yolo-ironman/scraper/$ python jarvis.py 20 stopwords.txt
+~/yolo-ironman/scraper/$ python jarvis.py 20 these are all my stop words
+~/yolo-ironman/scraper/$ python jarvis.py none stopwords.txt
+```
+
+The txt file MUST have words on separate lines:
+```
+These
+Are
+All
+My
+Stop
+Words
+```
+Ironman Description
+-------------------
+
+### Directory Structure
+
+The indexer, parser, crawler, runner, and all supporting code are located within
+the `scraper` directory. The tests for each of the objects is under the `tests`
+directory. This section of the documentation is specifically concerned with the
+body of code under `scraper`. Below is summary information of certain classes
+within the Yolo-Ironman project.
+
+### Ironman
+
+Ironman is the web-crawling, shiny-chrome-encased, proverbial workhorse of the
+Yolo-Ironman project. It handles the fetching and crawling of a domain. In
+general, these are the need to knows about Ironman:
+
+#### Domain Exclusive
+
+Ironman won't go cheating on other domains. You give Ironman a starting URL and
+it'll stick to that starting URL's domain.
+
+#### Observes Robots.txt
+
+Hey, no hard feelings. Ironman knows that everybody has a few skeletons in the
+closet. If you ask it not to go there, Ironman won't. It even <a
+href="#user-content-robot">supports non-standard robot.txt locations!</a>
+
+#### Politeness
+
+Ironman is so polite, it won the peace prize at the bi-centennial Web Crawlers
+of the World conference.
+
+#### Supports Non-Standard Root Locations
+
+If you've gone mad, and the world has run out of domains that you could possibly
+call your own, fear not. Ironman hears you. You can use mom and dad's domain
+with you subdirectory as the fake "root"/domain with Ironman.
+
+```python
+my_fake_domain = "http://mom_and_dads.domain.us/me"
+yolo = Ironman(my_fake_domain, treat_as_root=True)
+yolo.root
+  #=> 'http://mom_and_dads.domain.us/me'
+```
+
+### 
 
 ### Robot
 
-- The wrapper class around python's `RobotFileParser` class that supports
-  non-standard locations of `robots.txt` files.
-- An example:
+Robot (affectionately known as "Dummy" by Ironman) is a wrapper class around
+python's `RobotFileParser` class to support non-standard locations of
+`robots.txt` files.
+
+For example:
 
 ```python
 # robots.txt
@@ -93,45 +196,18 @@ robot.can_fetch("http://lyle.smu.edu/~wspurgin/dontgohere/")
 #  => False
 ```
 
-Execution
----------
+### Crawl
 
-To execute the program, simply run jarvis.py inside of the scraper folder
-with the python 2.7 interpreter.
-```
-~/yolo-ironman/scraper/$ python jarvis.py
-```
+Crawl, apart from being rather poorly named, is nothing noteworthy. It simply
+holds results from a single crawl that Ironman does and makes them nice and
+printable.
 
-###Command Line Arguments
-There are a few arguments that can be passed:
-1. The limit on how many pages will be accessed
-2. Words that should be ignored when indexing the pages
+### Jarvis
 
-The first argument must either be a non-negative integer, or the word 'none'.
-```
-~/yolo-ironman/scraper/$ python jarvis.py 20
-~/yolo-ironman/scraper/$ python jarvis.py none
-```
-
-Putting 1 will result in only the base URL being crawled (the first page), while
-putting 'none' will put no limit on the number of pages to be crawled. This is the
-default behavior, but it is necessary to put none if stop words need to be 
-included. Putting 0 will result in no pages being crawled. 
-
-The second argument accepts varying values as well. It can either be a path to a txt
-file or a hand typed list of words on the command line
-```
-~/yolo-ironman/scraper/$ python jarvis.py 20 stopwords.txt
-~/yolo-ironman/scraper/$ python jarvis.py 20 these are all my stop words
-~/yolo-ironman/scraper/$ python jarvis.py none stopwords.txt
-```
-
-The txt file MUST have words on separate lines:
-```
-These
-Are
-All
-My
-Stop
-Words
-```
+What would Ironman be without Jarvis? Just an awesome, fully functioning, shiny
+web-crawler-to-beat-all-web-crawlers! True. However, sometimes you just need a
+to have a good crawl and don't want to bother with writing a script and dealing
+with this output or reading through that class's docs. We get it. Jarvis is a
+handy-dandy command line program for just having a crawl. It'll crawl
+http://lyle.smu.edu/~fmoore and print out some nice summary things for you.
+Consider it an inspiration for when you want to write your own crawl. :wink:
