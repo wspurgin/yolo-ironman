@@ -152,7 +152,7 @@ of the World conference.
 
 If you've gone mad, and the world has run out of domains that you could possibly
 call your own, fear not. Ironman hears you. You can use mom and dad's domain
-with you subdirectory as the fake "root"/domain with Ironman.
+with your subdirectory as the fake "root"/domain with Ironman.
 
 ```python
 my_fake_domain = "http://mom_and_dads.domain.us/me"
