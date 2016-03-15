@@ -47,6 +47,8 @@ class Ironman(object):
             self.root = self.starting_url
             self.domain = parts.netloc + parts.path
             self.root_path = parts.path
+            if not self.root_path.endswith("/"):
+                self.root_path += "/"
         else:
             self.root = __HTTP__ + "://" + parts.netloc
             self.domain = parts.netloc
@@ -71,7 +73,6 @@ class Ironman(object):
     def crawl(self, url):
         full_url = self.constructUrl(url)
         is_travelable, reason = self.isTravelable(full_url, include_reason=True)
-        # TODO actually handle the return from a crawl...
         req = None
         if is_travelable:
             req = requests.get(full_url)
@@ -131,7 +132,7 @@ class Ironman(object):
         if target_url.startswith("/") and self.treat_as_root:
             # The target url is relative from root, and we have a non-standard
             # root location
-            target_url = self.root_path + url
+            target_url = self.root_path + url[1::]
 
         return urljoin(current_url, target_url)
 
