@@ -210,13 +210,13 @@ class Ironman(object):
             # been visited.
             visited_hrefs.append(full_url)
 
-            # Ensure report has a spot for the results
-            if reason not in self.report:
-                self.report[reason] = []
 
             # There may be no response if a request was never attempted (e.g.
             # it was an external link)
             if response is None:
+              # Ensure report has a spot for the results
+              if reason not in self.report:
+                  self.report[reason] = []
               self.report[reason].append(crawl)
               continue
 
@@ -239,8 +239,10 @@ class Ironman(object):
                     exception: " + str(e)
                 skip = True
 
-            # Add to report
-            self.report[reason].append(crawl)
+            # Ensure report has a spot for the results
+            if crawl.reason not in self.report:
+                self.report[crawl.reason] = []
+            self.report[crawl.reason].append(crawl)
 
             if skip:
                 continue

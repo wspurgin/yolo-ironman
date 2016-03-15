@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 from ironman import Ironman
 from parser import Parser
 from indexer import Indexer
@@ -65,6 +67,7 @@ if __name__ == "__main__":
             print "\033[94m\t%s:\033[0m" % category
             for crawl in results:
                 print"\t%s" % str(crawl)
+        print
         # Takes each html, htm, and txt page and extracts all the words, stems
         # all the words, and removes the stop words
         for soup in fe.good_soup:
