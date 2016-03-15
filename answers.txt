@@ -1,0 +1,47 @@
+1. 
+
+2. This question is answered by running jarvis.py The results are not suited to
+be shown in this format. It is recommended to make the console window maximized
+when running the program in order to make the results more legible 
+
+3. See question 2
+
+4. There are 3 .jpg files in the collection
+
+5. The process that we do this can be found in the parser.py file, specifically
+in the retrieveText function on line 36. On line 44, the .get_text() function
+returns only the text within tags, like so:
+ 
+ <p id="Hello">This is text</p>  ->  "This is text" 
+
+ That function is specifically for BeautifulSoup objects, which we are using to
+ grab URLs and parse the pages. We then hash the returned text after all the
+ stop words have been removed and the remaining words stemmed to create the unique
+ document ID. Because of the nature of hashes, we are assuming that if two hashes
+ are the same, then they are considered to be 100% duplicate pages, and we ignore
+ them. 
+
+
+6. The following is also output from running jarvis.py
+
+           Word | Total Frequency | # of Documents
+              i                17               4
+              1                15               3
+            and                14               5
+            for                13               6
+            cse                13               5
+           chpt                13               1
+            the                11               4
+         exampl                11               4
+             to                10               5
+           2016                10               5
+           hmwk                10               1
+              j                10               1
+         spring                 9               4
+            you                 9               4
+         assign                 9               2
+           stem                 9               1
+              2                 8               3
+        project                 8               2
+            thi                 7               6
+              a                 7               4
