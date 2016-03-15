@@ -9,7 +9,6 @@ import re
 import string
 import lxml
 import sys
-import csv
 import time
 
 from robot import Robot
