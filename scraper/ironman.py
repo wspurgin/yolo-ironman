@@ -44,8 +44,11 @@ class Ironman(object):
         parts = urlparse(self.starting_url)
         if self.treat_as_root:
             self.root = self.starting_url
-            self.domain = parts.netloc + parts.path
-            self.root_path = parts.path
+            path = parts.path
+            if path.endswith("/"):
+                path = path[0:-1]
+            self.domain = parts.netloc + path
+            self.root_path = path
             if not self.root_path.endswith("/"):
                 self.root_path += "/"
         else:
