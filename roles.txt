@@ -1,4 +1,12 @@
+For a line by line breakdown (of who wrote what line of each file), please visit
+https://github.com/wspurgin/yolo-ironman -- At this location, the code can be
+browsed in a syntax highligted editor. In this editor there is a button titled
+"Blame" which, if pressed, shows the person responsible for that line (or block)
+or code (using git-blame).
+
 Will:
+I wrote the ironman.py, robot.py, crawl.py, and made minor adjustments to
+jarvis.py to output the report created by Ironman during a crawl.
 
 Joe:
 I wrote indexer.py, parser.py, jarvis.py, and made modifications to porter.py so
