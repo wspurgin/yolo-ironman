@@ -22,7 +22,7 @@ if __name__ == "__main__":
             with open(sys.argv[3], 'r') as stop_word:
                 words = [word.strip() for word in stop_word.readlines()]
         except IOError:
-            print "2nd argument not a file. Execution is continuing\
+            print "3rd argument not a file. Execution is continuing\
                     assuming it's a stop word"
             words = [sys.argv[3].lower()]
     # If there are greater than 4 command line arguments, then the
@@ -69,8 +69,9 @@ if __name__ == "__main__":
                 print "Second argument must be either 'none' or a positive integer"
                 quit()
         except ValueError:
-            print "Second argument must be either 'none' or a positive integer"
-            quit()
+              if limit != "none":
+                print "Second argument must be either 'none' or a positive integer"
+                quit()
 
     treat_as_root = False
     # Check if target url is a non-standard root location.
