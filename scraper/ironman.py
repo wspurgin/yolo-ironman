@@ -192,9 +192,8 @@ class Ironman(object):
         # Creates a queue of pages to soupify and check for
         # links, and a list of pages already visited, and links to external
         # hosts.
-        start_url = self.root if not start_url else start_url
+        start_url = self.constructUrl(self.root if not start_url else start_url)
         href_queue = deque([start_url])
-        num_pages = 0
         visited_hrefs = []
         self.report = {}
         self.good_soup = []
