@@ -35,7 +35,7 @@ class Indexer(object):
     def indexWords(self, documents):
         """
         Reads each word in the dociment_dic and creates an inverse doc list
-        with also its frequency in that document. The inverse doc is a 
+        with also its frequency in that document. The inverse doc is a
         dictionary that relates each word to a list that contains tuples of the
         docID, and the frequency of that word in that doc.
         E.g.
@@ -77,10 +77,10 @@ class Indexer(object):
                     # document
                     if not found_word:
                         # Add the 2-list to the index list
-                        self.word_index[word].append([key, 1])  
+                        self.word_index[word].append([key, 1])
                         # Start tracking the total frequency in the collection
                         self.word_freq[word][0] += 1
-                        self.word_freq[word][1] += 1                    
+                        self.word_freq[word][1] += 1
                 else:
                     # Adds the word to the index, and relates to
                     # a 2-list that contain the docID and
@@ -89,13 +89,13 @@ class Indexer(object):
                     # Adds the word to frequency tracker. First number
                     # is the doc frequency, second is the collection frequency
                     self.word_freq[word] = [1, 1]
-        # Creates a list of tuples sorted by the total frequency of a 
+        # Creates a list of tuples sorted by the total frequency of a
         # word throughout the entire collection
         self.word_sorted = sorted(self.word_freq.iteritems(), key=itemgetter(1), reverse=True)
 
     def printMostFreq(self, top_x=20):
         """
-        Prints the most frequent words up until a specified number in a 
+        Prints the most frequent words up until a specified number in a
         readable table.
 
         @top_x: The top x number of results to return. By default, it
@@ -118,7 +118,7 @@ class Indexer(object):
             if i >= top_x: break
 
 
-        
+
 
 
 if __name__ == "__main__":
