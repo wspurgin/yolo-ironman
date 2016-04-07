@@ -76,7 +76,7 @@ if __name__ == "__main__":
     treat_as_root = False
     # Check if target url is a non-standard root location.
     url_path = urlparse(target_url).path
-    if url_path and not re.match(r"^\/(\w+\.\w+)?[^\/]*$", url_path):
+    if url_path and re.match(r"^\/([^\.]+)+\/$", url_path):
         treat_as_root = True
 
     # Creates the ironman object
