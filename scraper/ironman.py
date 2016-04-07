@@ -237,6 +237,11 @@ class Ironman(object):
             elif not self.isParsableContentType(response.headers['content-type']):
               crawl.reason = "Does not have a parsable content type: %s" % response.headers["content-type"]
               skip = True
+            elif response.url != full_url and response.url in visited_hrefs:
+              # We've been redirected to a location that we've already visited
+              # so it's safe to skip
+              crawl.reason = "Redirected to already visited URL"
+              skip = True
 
             if not skip:
               #  lxml will raise a Syntax error if the document is malformed
