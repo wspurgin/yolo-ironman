@@ -223,5 +223,5 @@ with this output or reading through that class's docs. We get it. Jarvis is a
 handy-dandy command line program for just having a crawl. It'll crawl
 http://lyle.smu.edu/~fmoore by default and print out some nice summary things
 for you. However you can give it all kinds of <a
-href="user-content-command-line-arguments">command line arguemnts</a>!
+href="#user-content-command-line-arguments">command line arguemnts</a>!
 Consider it an inspiration for when you want to write your own crawl.  :wink:
