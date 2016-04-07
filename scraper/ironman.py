@@ -77,7 +77,7 @@ class Ironman(object):
         is_travelable, reason = self.isTravelable(full_url, include_reason=True)
         req = None
         if is_travelable:
-            req = requests.get(full_url)
+            req = requests.head(full_url, allow_redirects=True)
         return Crawl(full_url, reason, req)
 
     def isTravelable(self, full_url, include_reason=False):
@@ -239,13 +239,16 @@ class Ironman(object):
               crawl.reason = "Does not have a parsable content type: %s" % response.headers["content-type"]
               skip = True
 
-            #  lxml will raise a Syntax error if the document is malformed
-            try:
-                cur_soup = self.parseSource(response)
-            except lxml.etree.XMLSyntaxError as e:
-                crawl.reason = "Parsing content failed with an \
-                    exception: " + str(e)
-                skip = True
+            if not skip:
+              #  lxml will raise a Syntax error if the document is malformed
+              try:
+                  # we have a parsable content type, so we have to retreive the
+                  # document.
+                  cur_soup = self.parseSource(requests.get(response.url))
+              except lxml.etree.XMLSyntaxError as e:
+                  crawl.reason = "Parsing content failed with an \
+                      exception: " + str(e)
+                  skip = True
 
             # Ensure report has a spot for the results
             if crawl.reason not in self.report:
