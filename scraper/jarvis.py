@@ -101,7 +101,14 @@ if __name__ == "__main__":
     # all the words, and removes the stop words
     for soup in fe.good_soup:
         p.retrieveText(soup)
+
     # Indexes the words from the documents
     i.indexWords(p.documents)
+
+    # Print out number of unique documents encountered
+    print "Encountered %i unique documents" % len(p.documents)
+    print "Removed %i duplicates" % p.num_duplicates
+    print
+
     # Prints out a very pretty table with the most common words
     i.printMostFreq()

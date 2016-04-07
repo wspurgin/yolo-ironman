@@ -31,6 +31,7 @@ class Parser(object):
         else:
             self.stop_words = None
         self.documents = {}
+        self.num_duplicates = 0
         self.p = PorterStemmer()
 
     def retrieveText(self, page_soup):
@@ -53,6 +54,8 @@ class Parser(object):
         # If the page is not a duplicate
         if page_hash not in self.documents:
             self.documents[page_hash] = page_text
+        else:
+            self.num_duplicates += 1
 
 if __name__ == "__main__":
     test_url = "http://lyle.smu.edu/~jstangelo/IR/test.html"
