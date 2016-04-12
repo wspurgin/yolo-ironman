@@ -62,16 +62,18 @@ following [these instructions.](http://lxml.de/installation.html)
 
 ### `BeautifulSoup` module
 
-This project also uses [BeautifulSoup](http://www.crummy.com/software/BeautifulSoup/bs4/doc/). This can be easily utilized to look for
-all of the links in any given webpage, and to extract all the text that is not
-related to html tags. It can be installed using `pip`.
+This project also uses
+[BeautifulSoup](http://www.crummy.com/software/BeautifulSoup/bs4/doc/). This can
+be easily utilized to look for all of the links in any given webpage, and to
+extract all the text that is not related to html tags. It can be installed using
+`pip`.
 
 ```
 pip install beautifulsoup4
 ```
 
-You can also download the tarball which can be found on the `BeautifulSoup`
-documentation page.
+You can also download the tarball which can be found on the [BeautifulSoup
+documentation page](http://www.crummy.com/software/BeautifulSoup/bs4/doc/).
 
 Execution
 ---------
@@ -84,9 +86,11 @@ with the python 2.7 interpreter.
 
 ###Command Line Arguments
 There are a few arguments that can be passed:
+
 1. A target URL to crawl
 2. The limit on how many pages will be accessed
-3. Words that should be ignored when indexing the pages
+3. Words (or a text file containing words) that should be ignored when indexing
+   the pages
 
 The first argument must either be a valid URL (including scheme), or the word
 'none'
@@ -110,14 +114,14 @@ the default behavior, but it is necessary to put none if stop words need to be
 included. Putting 0 will result in no pages being crawled.
 
 The third argument accepts varying values as well. It can either be a path to a
-txt file or a hand typed list of words on the command line
+text file or a hand typed list of words on the command line
 ```
 ~/yolo-ironman/scraper/$ python jarvis.py http://google.com 20 stopwords.txt
 ~/yolo-ironman/scraper/$ python jarvis.py none 20 these are all my stop words
 ~/yolo-ironman/scraper/$ python jarvis.py none none stopwords.txt
 ```
 
-The txt file MUST have words on separate lines:
+The text file MUST have words on separate lines:
 ```
 These
 Are
@@ -219,7 +223,7 @@ printable.
 What would Ironman be without Jarvis? Just an awesome, fully functioning, shiny
 web-crawler-to-beat-all-web-crawlers! True. However, sometimes you just need a
 to have a good crawl and don't want to bother with writing a script and dealing
-with this output or reading through that class's docs. We get it. Jarvis is a
+with *this* output or reading through *that* class' docs. We get it. Jarvis is a
 handy-dandy command line program for just having a crawl. It'll crawl
 http://lyle.smu.edu/~fmoore by default and print out some nice summary things
 for you. However you can give it all kinds of <a
