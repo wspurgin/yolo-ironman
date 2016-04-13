@@ -97,10 +97,12 @@ if __name__ == "__main__":
         for crawl in results:
             print"\t%s" % str(crawl)
     print
+
     # Takes each html, htm, and txt page and extracts all the words, stems
     # all the words, and removes the stop words
-    for soup in fe.good_soup:
-        p.retrieveText(soup)
+    for doc in fe.retrieved_documents:
+        url, soup = doc
+        p.retrieveText(soup, url)
 
     # Indexes the words from the documents
     i.indexWords(p.documents)

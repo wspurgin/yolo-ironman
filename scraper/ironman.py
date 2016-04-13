@@ -38,7 +38,7 @@ class Ironman(object):
         self.starting_url = starting_url
         self.treat_as_root = treat_as_root
         self.report = {}
-        self.good_soup = []
+        self.retrieved_documents = []
         self.robot = None
 
         parts = urlparse(self.starting_url)
@@ -196,7 +196,7 @@ class Ironman(object):
         href_queue = deque([start_url])
         visited_hrefs = []
         self.report = {}
-        self.good_soup = []
+        self.retrieved_documents = []
         requests_made = 0
         last_request_time = 0
         while href_queue:
@@ -267,7 +267,7 @@ class Ironman(object):
             # see if external links in <script> and <img> tags
             # are flagged by google to be malicious.
             cur_hrefs = self.findLinks(cur_soup, full_url)
-            self.good_soup.append(cur_soup)
+            self.retrieved_documents.append((full_url, cur_soup))
 
             # Checks to see if any of the found, valid links have
             # already been visited or found
