@@ -10,6 +10,7 @@ import hashlib
 
 from porter import PorterStemmer
 from bs4 import BeautifulSoup
+from document import Document
 
 class Parser(object):
     """
@@ -30,11 +31,12 @@ class Parser(object):
                 self.stop_words.append(word.lower())
         else:
             self.stop_words = None
-        self.documents = {}
+        self.hashes = []
+        self.documents = []
         self.num_duplicates = 0
         self.p = PorterStemmer()
 
-    def retrieveText(self, page_soup):
+    def retrieveText(self, page_soup, url):
         """
         Retrieves all the non-markup text from a webpage that
         has already been crawled.
@@ -52,8 +54,9 @@ class Parser(object):
         h.update(page_text)
         page_hash = h.hexdigest()
         # If the page is not a duplicate
-        if page_hash not in self.documents:
-            self.documents[page_hash] = page_text
+        if page_hash not in self.hashes:
+            self.hashes.append(page_hash)
+            self.documents.append(Document(page_text, url))
         else:
             self.num_duplicates += 1
 
@@ -61,6 +64,6 @@ if __name__ == "__main__":
     test_url = "http://lyle.smu.edu/~jstangelo/IR/test.html"
     req = requests.get(test_url)
     page_soup = BeautifulSoup(req.content, "lxml")
-    p = Parser()
-    p.retrieveText(page_soup)
-    print p.documents
+    p = Parser(None)
+    p.retrieveText(page_soup, test_url)
+    print p.documents[0].text

@@ -20,10 +20,10 @@ class Document(object):
 	process.
 	"""
 
-	def __init__(self, url, text):
+	def __init__(self, text, url):
 		super(Document, self).__init__()
 		self.url = url
-		self.text = text.split(' ')[:20]
+		self.text = text
 		h = hashlib.md5()
 		h.update(text)
 		self.hash = h.hexdigest()
