@@ -9,6 +9,7 @@ import string
 import lxml
 import sys
 import csv
+from document import Document
 from operator import itemgetter
 from robotparser import RobotFileParser
 from urlparse import urlparse
@@ -24,11 +25,10 @@ class Indexer(object):
 
     def __init__(self, **kwargs):
         super(Indexer, self).__init__()
-        # Contains the index of word to documents/frequency
+        # Contains the index of word to documents
         self.word_index = {}
         # Keeps track of the total frequency. Keeps track of
-        # number of total occurences, and the number of documents
-        # it appears in.
+        # number of total occurences throughout the corpus.
         self.word_freq = {}
         self.word_sorted = []
 
@@ -42,57 +42,30 @@ class Indexer(object):
         the => [(doc1, 4), (doc2, 3), (doc3, 6)]
         banana => [(doc1, 1), (doc3, 1)]
         """
-        # Goes through all the documents in the dictionary
-        for key in documents:
-            # Grabs each document's text
-            doc_text = documents[key]
-            # Splits the text up into individual words in a list
-            word_list = doc_text.split()
-            # Goes through each word
-            for word in word_list:
-                # Checks to see if the word has been indexed yet
-                if word in self.word_index:
-                    # Tests for if this docID has been already related
-                    # to this specific word
-                    found_word = False
-                    # Grabs the index and tuple of the index for the
-                    # specific word
-                    for idx, doc in enumerate(self.word_index[word]):
-                        # If one of the doc IDs matches the current
-                        # doc ID, then increment the frequency of that
-                        # word by 1
-                        if doc[0] == key:
-                            # Going from left to right:
-                            # 1. Grab the appropriate list of tuples from
-                            #    the index based on the word
-                            # 2. Go to the appropriate index of the 2-list
-                            #    that matches the docID
-                            # 3. Grab the frequency value
-                            # 4. Increment by 1
-                            self.word_index[word][idx][1] += 1
-                            self.word_freq[word][0] += 1
-                            found_word = True
-                            break
-                    # If this is the first occurence of this word in this
-                    # document
-                    if not found_word:
-                        # Add the 2-list to the index list
-                        self.word_index[word].append([key, 1])
-                        # Start tracking the total frequency in the collection
-                        self.word_freq[word][0] += 1
-                        self.word_freq[word][1] += 1
+        # Goes through all the documents in the list
+        for document in documents:
+            # Goes through each word in the document
+            for word in document.word_vector:
+                # If that word has not been found
+                if word not in self.word_index:
+                    # Add the word to the index, and relate it to a list
+                    # containing the document object that it was first 
+                    # found in. 
+                    self.word_index[word] = [document]
+                    # Add the word to the word frequency list and
+                    # set its value to the number of times appears 
+                    # in this document.
+                    self.word_freq[word] = document.word_vector[word]
                 else:
-                    # Adds the word to the index, and relates to
-                    # a 2-list that contain the docID and
-                    # the number of occurences of that word
-                    self.word_index[word] = [[key, 1]]
-                    # Adds the word to frequency tracker. First number
-                    # is the doc frequency, second is the collection frequency
-                    self.word_freq[word] = [1, 1]
-        # Creates a list of tuples sorted by the total frequency of a
-        # word throughout the entire collection
+                    # Add this document to the list of documents that
+                    # have this word in it
+                    self.word_index[word].append(document)
+                    # Updates the number of times this word appears in the
+                    # corpus by the number of times it appears in this
+                    # document
+                    self.word_freq[word] += document.word_vector[word]
+       
         self.word_sorted = sorted(self.word_freq.iteritems(), key=itemgetter(1), reverse=True)
-
     def printMostFreq(self, top_x=20):
         """
         Prints the most frequent words up until a specified number in a
@@ -130,9 +103,10 @@ if __name__ == "__main__":
     click here to go to test2.html have you seen my sock what the deal \
     with airplan peanut fat chicken man h p hello i love lasagna"
     doc_id = "doc1"
-    documents = {doc_id: doc_text}
+    doc_url = "www.abc.com"
+    d = [Document(doc_text, doc_url, doc_id)]
     i = Indexer()
-    i.indexWords(documents)
-    i.word_index
-    i.findMostFreq()
+    i.indexWords(d)
+    print i.word_index
+    print i.word_freq
 

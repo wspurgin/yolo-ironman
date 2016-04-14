@@ -53,10 +53,12 @@ class Parser(object):
         h = hashlib.md5()
         h.update(page_text)
         page_hash = h.hexdigest()
-        # If the page is not a duplicate
+        # If the page is not a duplicate, add the hash to a list of found
+        # hashes, and create a Document object to keep track of the information
+        # for each Document
         if page_hash not in self.hashes:
             self.hashes.append(page_hash)
-            self.documents.append(Document(page_text, url))
+            self.documents.append(Document(page_text, url, page_hash))
         else:
             self.num_duplicates += 1
 
