@@ -85,8 +85,8 @@ class Indexer(object):
             # Prints out the top x results in a formatted string. In order of
             # Word, Total Frequency, # of Document. word[1] is a 2-list that
             # contains, in this order, the document and total frequency
-            print "{0:>15}   {1:15d}  {2:14d}".format(word[0], word[1][0],\
-                                                      word[1][1])
+            print "{0:>15}   {1:15d}  {2:14d}".format(word[0], word[1], \
+                                            len(self.word_index[word[0]]))
             i += 1
             if i >= top_x: break
 
@@ -107,6 +107,7 @@ if __name__ == "__main__":
     d = [Document(doc_text, doc_url, doc_id)]
     i = Indexer()
     i.indexWords(d)
-    print i.word_index
-    print i.word_freq
+    #print i.word_index
+    #print i.word_freq
+    i.printMostFreq()
 
