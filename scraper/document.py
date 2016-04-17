@@ -28,3 +28,4 @@ class Document(object):
 		self.id = hash_id
 		text_list = stem_text.split()
 		self.word_vector = {x:text_list.count(x) for x in text_list}
+                self.normalized_tf = {}
