@@ -30,6 +30,7 @@ class Indexer(object):
         # Keeps track of the total frequency. Keeps track of
         # number of total occurences throughout the corpus.
         self.word_freq = {}
+        # Keeps a sorted list of words by total frequency
         self.word_sorted = []
 
     def indexWords(self, documents):

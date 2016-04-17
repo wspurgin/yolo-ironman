@@ -46,19 +46,19 @@ class Parser(object):
         # Retrieve all the text of the page minus the html tags
         page_text = page_soup.get_text()
         # Stems and returns all the non-stopword text
-        page_text = self.p.stemText(page_text, self.stop_words).encode('utf_8', 'ignore')
+        stem_text = self.p.stemText(page_text, self.stop_words).encode('utf_8', 'ignore')
         # Create a hash to make sure there are no 100% duplicates in the pages
         # The hex digest will also be used as the document ID, since they will
         # be unique unless they are a duplicate
         h = hashlib.md5()
-        h.update(page_text)
+        h.update(stem_text)
         page_hash = h.hexdigest()
         # If the page is not a duplicate, add the hash to a list of found
         # hashes, and create a Document object to keep track of the information
         # for each Document
         if page_hash not in self.hashes:
             self.hashes.append(page_hash)
-            self.documents.append(Document(page_text, url, page_hash))
+            self.documents.append(Document(page_text, stem_text, url, page_hash))
         else:
             self.num_duplicates += 1
 
@@ -68,4 +68,5 @@ if __name__ == "__main__":
     page_soup = BeautifulSoup(req.content, "lxml")
     p = Parser(None)
     p.retrieveText(page_soup, test_url)
-    print p.documents[0].text
+    print p.documents[0].full_text
+    print p.documents[0].stem_text

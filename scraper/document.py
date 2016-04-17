@@ -20,10 +20,11 @@ class Document(object):
 	process.
 	"""
 
-	def __init__(self, text, url, hash_id):
+	def __init__(self, full_text, stem_text, url, hash_id):
 		super(Document, self).__init__()
 		self.url = url
-		self.text = text
+		self.full_text = full_text
+		self.stem_text = stem_text
 		self.id = hash_id
-		text_list = text.split()
+		text_list = stem_text.split()
 		self.word_vector = {x:text_list.count(x) for x in text_list}
