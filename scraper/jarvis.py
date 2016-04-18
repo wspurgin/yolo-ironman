@@ -4,6 +4,7 @@ from ironman import Ironman
 from parser import Parser
 from indexer import Indexer
 from urlparse import urlparse
+from normalized_document_calculator import NormalizedDocumentCalculator as Calculator
 import sys
 import pprint
 import re
@@ -111,10 +112,20 @@ if __name__ == "__main__":
     # Indexes the words from the documents
     i.indexWords(p.documents)
 
-    # Print out number of unique documents encountered
-    print "Encountered %i unique documents" % len(p.documents)
-    print "Removed %i duplicates" % p.num_duplicates
-    print
+    # Creates the calculator that will calculate a document's normalized
+    # document vector scores. We pass it the word-frequency index throughout
+    # the corpus, and the number of documents.
+    NDC = Calculator(i.word_freq, len(p.documents))
+    
+    # Updates every document to hold the normalized term frequency
+    for doc in p.documents:
+        NDC.normalize(doc)
 
-    # Prints out a very pretty table with the most common words
-    i.printMostFreq()
+    
+    # # Print out number of unique documents encountered
+    # print "Encountered %i unique documents" % len(p.documents)
+    # print "Removed %i duplicates" % p.num_duplicates
+    # print
+
+    # # Prints out a very pretty table with the most common words
+    # i.printMostFreq()
