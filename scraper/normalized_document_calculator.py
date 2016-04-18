@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+
+# Will Spurgin
+# Joe St. Angelo
+# Yolo-Ironman
+
 from math import log10, sqrt
 
 # Yolo-Ironman imports
@@ -13,11 +19,23 @@ class NormalizedDocumentCalculator(object):
         self.calculateTermIdfs()
 
     def calculateTermIdfs(self):
+        """Calculate the term-IDF matrix for the given term-DF matrix given in
+        `__init__`. IDF of a term, t, is considered:
+            IDF_t = log ( N / DF_t )
+        """
         N = self.number_of_documents
         for term in self.term_freqs:
             self.term_idfs[term] = log10(N / self.term_freqs[term])
 
     def normalize(self, doc):
+        """Normalize the given `Document`'s term frequency by first weighting
+        each term frequency by the calculated inverse document frequency of that
+        term. Finally normalize the entire 'document vector' by its L2 norm:
+            wf_t = tf_t * idf_t
+            v = wf_1 … wf_n
+            |v| = √ Σ v_i² ⌉
+            nV = ( v / |v| )
+        """
         if type(doc) is not Document:
             raise ValueError("NormalizedDocumentCalculator.normalize expects a Document object")
 
