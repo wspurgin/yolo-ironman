@@ -42,6 +42,10 @@ if __name__ == "__main__":
         if limit.lower() == "none":
             limit = None
         words = None
+    elif len(sys.argv) == 2:
+        target_url = sys.argv[1]
+        limit = None
+        words = None
     # If there are no command line arguements, then there is no limit
     # and no stop words to consider
     else:
