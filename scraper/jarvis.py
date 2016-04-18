@@ -26,7 +26,7 @@ if __name__ == "__main__":
                     assuming it's a stop word"
             words = [sys.argv[3].lower()]
     # If there are greater than 4 command line arguments, then the
-    # first is the limit on the pages, and the rest are the stop 
+    # first is the limit on the pages, and the rest are the stop
     # words that must be considered
     elif len(sys.argv) > 4:
         target_url = sys.argv[1]
@@ -35,7 +35,7 @@ if __name__ == "__main__":
             limit = None
         words = sys.argv[3:]
     # If there are only 3 command line arguments, then there is only
-    # a limit on the pages and no stop words to consider    
+    # a limit on the pages and no stop words to consider
     elif len(sys.argv) == 3:
         target_url = sys.argv[1]
         limit = sys.argv[2]
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     # Creates the indexer object
     i = Indexer()
 
-    # Starts actually crawling through the web page, keeping track of 
+    # Starts actually crawling through the web page, keeping track of
     # the limit of pages to be accessed
     fe.spiderForLinks(limit=limit)
     print "\033[95mCrawl Results\033[0m"

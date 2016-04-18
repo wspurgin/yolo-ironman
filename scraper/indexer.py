@@ -50,11 +50,11 @@ class Indexer(object):
                 # If that word has not been found
                 if word not in self.word_index:
                     # Add the word to the index, and relate it to a list
-                    # containing the document object that it was first 
-                    # found in. 
+                    # containing the document object that it was first
+                    # found in.
                     self.word_index[word] = [document]
                     # Add the word to the word frequency list and
-                    # set its value to the number of times appears 
+                    # set its value to the number of times appears
                     # in this document.
                     self.word_freq[word] = document.word_vector[word]
                 else:
@@ -65,7 +65,7 @@ class Indexer(object):
                     # corpus by the number of times it appears in this
                     # document
                     self.word_freq[word] += document.word_vector[word]
-       
+
         self.word_sorted = sorted(self.word_freq.iteritems(), key=itemgetter(1), reverse=True)
     def printMostFreq(self, top_x=20):
         """
