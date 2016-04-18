@@ -11,9 +11,9 @@ from document import Document
 
 class NormalizedDocumentCalculator(object):
     """A calculator to get a document's normalized document vector scores"""
-    def __init__(self, term_freqs, number_of_documents):
+    def __init__(self, term_document_frequencies, number_of_documents):
         super(NormalizedDocumentCalculator, self).__init__()
-        self.term_freqs = term_freqs
+        self.term_document_frequencies = term_document_frequencies
         self.number_of_documents = number_of_documents
         self.term_idfs = {}
         self.calculateTermIdfs()
@@ -24,8 +24,8 @@ class NormalizedDocumentCalculator(object):
             IDF_t = log ( N / DF_t )
         """
         N = self.number_of_documents
-        for term in self.term_freqs:
-            self.term_idfs[term] = log10(N / self.term_freqs[term])
+        for term, document_frequency in self.term_document_frequencies.items():
+            self.term_idfs[term] = log10(N / document_frequency)
 
     def normalize(self, doc):
         """Normalize the given `Document`'s term frequency by first weighting
