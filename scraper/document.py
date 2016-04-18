@@ -1,16 +1,6 @@
-#!/usr/bin/env python
 # Will Spurgin
 # Joe St. Angelo
-# yolo-ironman Ironman
-
-import urllib
-import requests
-import re
-import string
-import hashlib
-import lxml
-import sys
-import time
+# Yolo-Ironman
 
 class Document(object):
 	"""
