@@ -9,4 +9,10 @@ class Pepper(object):
 	indexed corpus by Ironman
 	"""
 
-	def 
+	def __init__(self):
+		super(Pepper, self).__init__()
+		self.queryHandler()
+
+	def queryHandler(self):
+		user_input = ""
+		
