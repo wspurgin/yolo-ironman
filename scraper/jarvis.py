@@ -95,7 +95,7 @@ if __name__ == "__main__":
 
     # Starts actually crawling through the web page, keeping track of
     # the limit of pages to be accessed
-    fe.spiderForLinks(limit=limit)
+    fe.spiderForLinks(start_url=target_url, limit=limit)
     print "\033[95mCrawl Results\033[0m"
     for category, results in fe.report.iteritems():
         print "\033[94m\t%s:\033[0m" % category
@@ -121,7 +121,7 @@ if __name__ == "__main__":
     for doc in p.documents:
         NDC.normalize(doc)
 
-    
+    pe = pepper(p.documents, NDC, stop_words)
     # # Print out number of unique documents encountered
     # print "Encountered %i unique documents" % len(p.documents)
     # print "Removed %i duplicates" % p.num_duplicates

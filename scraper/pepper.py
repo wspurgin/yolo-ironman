@@ -11,18 +11,22 @@ class Pepper(object):
 	indexed corpus by Ironman
 	"""
 
-	def __init__(self, documents, NDC):
+	def __init__(self, documents, NDC, stop_words):
 		super(Pepper, self).__init__()
 		self.documents = documents
 		self.NDC = NDC
 		self.p = PorterStemmer()
-		self.handleQuery()
+		self.stop_words = stop_words
 
 	def handleQuery(self, user_input):
 	"""
 	Handles the process of formatting a user_inputted query
 	"""
-		stem_query = self.p.stemText(user_input).encode('utf_8', 'ignore')
+		scores = []
+		stem_query = self.p.stemText(user_input, self.stop_words).encode('utf_8', 'ignore')
 		query = Document(user_input, stem_query)
 		NDC.normalize(query)
-		
+		for document in self.documents:
+			scores.append((NDC.score(query, document), document))
+		scores = sorted(self.scores, key=getItem, reverse=True)
+		return scores
