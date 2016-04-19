@@ -113,13 +113,7 @@ class Ironman(object):
             is_travelable = False
             reason = "Unsupported scheme %s" % url_fragments.scheme
         else:
-          if self.treat_as_root:
-            url_without_scheme = re.sub(r'https?:\/\/', "", full_url)
-            if not url_without_scheme.startswith((self.domain)):
-              is_travelable = False
-              reason = "External URL"
-          else:
-            if url_fragments.netloc != self.domain:
+            if self.isExternal(full_url):
               is_travelable = False
               reason = "External URL"
 
@@ -127,6 +121,15 @@ class Ironman(object):
             return (is_travelable, reason)
         else:
             return is_travelable
+
+    def isExternal(self, url):
+          if self.treat_as_root:
+            url_without_scheme = re.sub(r'https?:\/\/', "", url)
+            if not url_without_scheme.startswith((self.domain)):
+                return True
+          else:
+            if urlparse(url).netloc != self.domain:
+                return True
 
     def constructUrl(self, url, current_url=None):
         """
@@ -251,6 +254,9 @@ class Ironman(object):
               # We've been redirected to a location that we've already visited
               # so it's safe to skip
               crawl.reason = "Redirected to already visited URL"
+              skip = True
+            elif self.isExternal(response.url):
+              crawl.reason = "Redirected to External URL: %s" % response.url
               skip = True
 
             if not skip:
