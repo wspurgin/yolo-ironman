@@ -48,6 +48,7 @@ class NormalizedDocumentCalculator(object):
         for val in doc.normalized_tf.values():
             euclidean_dist += pow(val, 2)
         euclidean_dist = sqrt(euclidean_dist)
+        euclidean_dist = float(euclidean_dist or 1.0)
 
         # Normalize the weighted document vector with the L2 norm (i.e. divide
         # each term by the euclidean distance).
