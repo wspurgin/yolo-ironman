@@ -27,23 +27,27 @@ class Pepper(object):
         query = Document(user_input, stem_query)
         NDC.normalize(query)
         for document in self.documents:
-            scores.append((self.score(query, document), document))
-        scores = sorted(self.scores, key=getItem, reverse=True)
+            scores.append((self.NDC.score(query, document), document))
+        scores = sorted(scores, reverse=True)
         return scores
 
     def score(query, document):
         return 1
 
 if __name__ == "__main__":
-    print "hello"
     full_text = "full text"
-    stem_text = "stem text"
+    stem_text = "full text"
+    word_freq = {"full": 1, "text": 1}
     url = "abc"
     hash_id = "123"
+    NDC = N(word_freq, 1)
     doc = Document(stem_text, full_text, url, hash_id)
     query = Document( stem_text, full_text)
+
     documents = [doc]
-    word_freq = {"full": 1, "text": 1}
-    NDC = N(word_freq, 1)
+    for d in documents:
+        NDC.normalize(d)
+    print doc.normalized_tf
+
     pe = Pepper(documents, NDC, ["a"])
     print pe.handleQuery("full")
