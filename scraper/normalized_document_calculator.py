@@ -55,6 +55,14 @@ class NormalizedDocumentCalculator(object):
             doc.normalized_tf[term] = wf / euclidean_dist
 
     def score(self, query, doc):
+        """Calculate the similarity score between to `Document`s. The documents
+        **must** be normalized beforehand. Or at least the `normalized_tf` on
+        them must be set.
+        """
+
+        if type(doc) is not Document or type(query) is not Document:
+            raise ValueError("NormalizedDocumentCalculator.score expects two Document objects")
+
         score = 0.0
         for term, nf in query.normalized_tf.items():
             if doc.normalized_tf.has_key(term):
