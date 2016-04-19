@@ -10,7 +10,7 @@ class Document(object):
     process.
     """
 
-    def __init__(self, full_text=None, stem_text, url=None, hash_id=None):
+    def __init__(self, stem_text, full_text=None, url=None, hash_id=None):
         super(Document, self).__init__()
         self.url = url
         self.full_text = full_text
