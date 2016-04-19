@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 
 from document import Document
+from normalized_document_calculator import NormalizedDocumentCalculator
+from porter import PorterStemmer
 
 class Pepper(object):
 	"""
@@ -9,10 +11,18 @@ class Pepper(object):
 	indexed corpus by Ironman
 	"""
 
-	def __init__(self):
+	def __init__(self, documents, NDC):
 		super(Pepper, self).__init__()
-		self.queryHandler()
+		self.documents = documents
+		self.NDC = NDC
+		self.p = PorterStemmer()
+		self.handleQuery()
 
-	def queryHandler(self):
-		user_input = ""
+	def handleQuery(self, user_input):
+	"""
+	Handles the process of formatting a user_inputted query
+	"""
+		stem_query = self.p.stemText(user_input).encode('utf_8', 'ignore')
+		query = Document(user_input, stem_query)
+		NDC.normalize(query)
 		
