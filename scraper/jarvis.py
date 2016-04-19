@@ -5,6 +5,8 @@ from parser import Parser
 from indexer import Indexer
 from urlparse import urlparse
 from normalized_document_calculator import NormalizedDocumentCalculator as Calculator
+from pepper import Pepper
+from porter import PorterStemmer
 import sys
 import pprint
 import re
@@ -115,19 +117,40 @@ if __name__ == "__main__":
     # Creates the calculator that will calculate a document's normalized
     # document vector scores. We pass it the word-frequency index throughout
     # the corpus, and the number of documents.
-    print i.word_freq
-    print len(p.documents)
-    NDC = Calculator(i.word_freq, len(p.documents))
-    
+    NDC = Calculator(i.word_document_frequency, len(p.documents))
+
     # Updates every document to hold the normalized term frequency
     for doc in p.documents:
         NDC.normalize(doc)
 
-    pe = pepper(p.documents, NDC, stop_words)
-    # # Print out number of unique documents encountered
-    # print "Encountered %i unique documents" % len(p.documents)
-    # print "Removed %i duplicates" % p.num_duplicates
-    # print
+    pe = Pepper(p.documents, NDC, words)
+    # Print out number of unique documents encountered
+    print "Encountered %i unique documents" % len(p.documents)
+    print "Removed %i duplicates" % p.num_duplicates
+    print
 
-    # # Prints out a very pretty table with the most common words
-    # i.printMostFreq()
+    query = "naive bayes K means"
+    print "Example Query: '%s'" % query
+    print "| {0:>15} | {1:>15} | {2:>15} | {3:>14} |".format("Term", "DF", "IDF", "F")
+    for term in pe.p.stemText(query, words).encode('utf_8', 'ignore').split():
+        if not i.word_document_frequency.has_key(term): continue
+        if not NDC.term_idfs.has_key(term): continue
+        if not i.word_freq.has_key(term): continue
+
+        df = i.word_document_frequency[term]
+        idf = NDC.term_idfs[term]
+        wf = i.word_freq[term]
+
+        print "| {0:>15} | {1:>15d} | {2:>15f} | {3:>14d} |".format(term, df, idf, wf)
+    print
+
+    ranked_docs = pe.handleQuery(query)
+    i = 1
+    top_x = 5
+    print "{0:>15} | {1:>15} | {2:>14}".format("Rank", "Score", "Document")
+    for score, doc in ranked_docs:
+        print "{0:>15} | {1:15f} | {2:14s}".format(i, score, doc.url)
+        i += 1
+        if i >= top_x: break
+
+
