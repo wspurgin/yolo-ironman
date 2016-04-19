@@ -41,7 +41,11 @@ class NormalizedDocumentCalculator(object):
 
         # Perform Idf weighting of term frequencies on the doc.
         for term in doc.word_vector:
-            doc.normalized_tf[term] = doc.word_vector[term] * self.term_idfs[term]
+            doc.normalized_tf[term] = doc.word_vector[term]
+            if self.term_idfs.has_key(term):
+                doc.normalized_tf[term] *= self.term_idfs[term]
+            else:
+                doc.normalized_tf[term] = 0.0
 
         # Caculate the Euclidean distance for the weighted document vector.
         euclidean_dist = 0.0
