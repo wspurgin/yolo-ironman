@@ -397,4 +397,4 @@ class PorterStemmer:
 
 if __name__ == '__main__':
     p = PorterStemmer()
-    print p.stemText(u"There is no such thing, :as a chicken in heat??")
+    print p.stemText(u"There is no such thing, :as a chicken in heat?? k-means should be avoided at ALL times.")
