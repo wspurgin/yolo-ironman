@@ -115,6 +115,8 @@ if __name__ == "__main__":
     # Creates the calculator that will calculate a document's normalized
     # document vector scores. We pass it the word-frequency index throughout
     # the corpus, and the number of documents.
+    print i.word_freq
+    print len(p.documents)
     NDC = Calculator(i.word_freq, len(p.documents))
     
     # Updates every document to hold the normalized term frequency

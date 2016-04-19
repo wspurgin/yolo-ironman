@@ -25,5 +25,5 @@ if __name__ == '__main__':
     stem_text = "th banana"
     url = "abc.com"
     hash_id = "123"
-    full_document = Document(full_text, stem_text, url, hash_id)
-    query_document = Document(full_text, stem_text)
+    full_document = Document(stem_text, full_text, url, hash_id)
+    query_document = Document(stem_text, full_text)

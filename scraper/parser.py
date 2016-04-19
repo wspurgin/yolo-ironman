@@ -58,7 +58,7 @@ class Parser(object):
         # for each Document
         if page_hash not in self.hashes:
             self.hashes.append(page_hash)
-            self.documents.append(Document(page_text, stem_text, url, page_hash))
+            self.documents.append(Document(stem_text, page_text, url, page_hash))
         else:
             self.num_duplicates += 1
 
