@@ -35,11 +35,21 @@ class Ironman(object):
 
     def __init__(self, starting_url, treat_as_root=False, **kwargs):
         super(Ironman, self).__init__()
-        self.starting_url = starting_url
         self.treat_as_root = treat_as_root
         self.report = {}
         self.retrieved_documents = []
         self.robot = None
+
+        # Test staring URL for redirect
+        res = requests.head(starting_url, allow_redirects=True)
+        if res.url != starting_url:
+            print "Starting URL '%s' Redirected to: %s" % (starting_url, res.url)
+            if treat_as_root:
+                print "`treat_as_root` flag will be forced to off."
+                self.treat_as_root = False
+            self.starting_url = res.url
+        else:
+            self.starting_url = starting_url
 
         parts = urlparse(self.starting_url)
         if self.treat_as_root:
@@ -192,7 +202,7 @@ class Ironman(object):
         # Creates a queue of pages to soupify and check for
         # links, and a list of pages already visited, and links to external
         # hosts.
-        start_url = self.constructUrl(self.root if not start_url else start_url)
+        start_url = self.constructUrl(self.starting_url if not start_url else start_url)
         href_queue = deque([start_url])
         visited_hrefs = []
         self.report = {}
@@ -266,7 +276,7 @@ class Ironman(object):
             # to somewhere within the domain. It also checks to
             # see if external links in <script> and <img> tags
             # are flagged by google to be malicious.
-            cur_hrefs = self.findLinks(cur_soup, full_url)
+            cur_hrefs = self.findLinks(cur_soup, response.url)
             self.retrieved_documents.append((full_url, cur_soup))
 
             # Checks to see if any of the found, valid links have
