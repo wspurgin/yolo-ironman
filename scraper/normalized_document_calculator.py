@@ -54,3 +54,9 @@ class NormalizedDocumentCalculator(object):
         for term, wf in doc.normalized_tf.items():
             doc.normalized_tf[term] = wf / euclidean_dist
 
+    def score(self, query, doc):
+        score = 0.0
+        for term, nf in query.normalized_tf.items():
+            if doc.normalized_tf.has_key(term):
+                score += nf * doc.normalized_tf[term]
+        return score
