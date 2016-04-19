@@ -32,6 +32,8 @@ class Indexer(object):
         self.word_freq = {}
         # Keeps a sorted list of words by total frequency
         self.word_sorted = []
+        # Terms to document frequency
+        self.word_document_frequency = {}
 
     def indexWords(self, documents):
         """
@@ -67,6 +69,8 @@ class Indexer(object):
                     self.word_freq[word] += document.word_vector[word]
 
         self.word_sorted = sorted(self.word_freq.iteritems(), key=itemgetter(1), reverse=True)
+        self.word_document_frequency = { word: len(docs) for word, docs in self.word_index.iteritems() }
+
     def printMostFreq(self, top_x=20):
         """
         Prints the most frequent words up until a specified number in a
@@ -87,7 +91,7 @@ class Indexer(object):
             # Word, Total Frequency, # of Document. word[1] is a 2-list that
             # contains, in this order, the document and total frequency
             print "{0:>15}   {1:15d}  {2:14d}".format(word[0], word[1], \
-                                            len(self.word_index[word[0]]))
+                                            self.word_document_frequency[word[0]])
             i += 1
             if i >= top_x: break
 
