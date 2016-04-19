@@ -24,8 +24,8 @@ class Pepper(object):
         """
         scores = []
         stem_query = self.p.stemText(user_input, self.stop_words).encode('utf_8', 'ignore')
-        query = Document(user_input, stem_query)
-        NDC.normalize(query)
+        query = Document(stem_query, full_text=user_input)
+        self.NDC.normalize(query)
         for document in self.documents:
             scores.append((self.NDC.score(query, document), document))
         scores = sorted(scores, reverse=True)
