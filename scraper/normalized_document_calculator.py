@@ -25,7 +25,7 @@ class NormalizedDocumentCalculator(object):
         """
         N = self.number_of_documents
         for term, document_frequency in self.term_document_frequencies.items():
-            self.term_idfs[term] = log10(N / document_frequency)
+            self.term_idfs[term] = log10(float(N) / document_frequency)
 
     def normalize(self, doc):
         """Normalize the given `Document`'s term frequency by first weighting
