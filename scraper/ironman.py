@@ -229,6 +229,8 @@ class Ironman(object):
             # Adds the current page to the pages that have
             # been visited.
             visited_hrefs.append(full_url)
+            sys.stdout.write("\rNumber of pages visited: %d" % len(visited_hrefs))
+            sys.stdout.flush()
 
 
             # There may be no response if a request was never attempted (e.g.
