@@ -39,6 +39,10 @@ class Ironman(object):
         self.report = {}
         self.retrieved_documents = []
         self.robot = None
+        self.mean_response_time = 0
+        self.total_request_time = 0
+        self.min_response_time = -1
+        self.max_response_time = -1
 
         # Test staring URL for redirect
         res = requests.head(starting_url, allow_redirects=True)
@@ -212,6 +216,7 @@ class Ironman(object):
         self.retrieved_documents = []
         requests_made = 0
         last_request_time = 0
+        self.total_request_time = 0
         while href_queue:
             # Guard statement to ensure we observe a limit (if one is given).
             if limit and requests_made == limit:
@@ -241,7 +246,13 @@ class Ironman(object):
               self.report[reason].append(crawl)
               continue
 
+            # Calculates the total, min, and max response time
             last_request_time = response.elapsed.total_seconds()
+            if self.min_response_time is -1 or last_request_time < self.min_response_time:
+                self.min_response_time = last_request_time
+            if self.max_response_time is -1 or last_request_time > self.max_response_time:
+                self.max_response_time = last_request_time
+            self.total_request_time += last_request_time
             requests_made += 1
 
             skip = False
@@ -291,5 +302,7 @@ class Ironman(object):
             for href in cur_hrefs:
                 if href not in visited_hrefs and href not in href_queue:
                     href_queue.append(href)
+        # Calculates the mean response time
+        self.mean_response_time = self.total_request_time / requests_made
         return self.report
 
