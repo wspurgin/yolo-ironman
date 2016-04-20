@@ -159,8 +159,13 @@ class UI(object):
             print "{0:>15} | {1:15f} | {2:14s}".format(i, score, doc.url)
             i += 1
             if i > self.top_k: break
+        print
         if i == 1:
             print "No results found for that query :("
+        else:
+            top_doc = ranked_docs[0][1]
+            print "First 20 words of top ranked document: %s" % doc.url
+            print "%s..." % " ".join(top_doc.full_text.split()[0:20])
 
 
     def setK(self, k=5):
