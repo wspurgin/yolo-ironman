@@ -13,25 +13,26 @@ import re
 class Jarvis(object):
 
     def __init__(self, stop_words=[]):
-        super(Ironman, self).__init__()
+        super(Jarvis, self).__init__()
 
         # Create the parser object, passing in the stop words
         self.parser = Parser(stop_words=stop_words)
         self.index = Indexer()
         self.calculator = None
         self.stop_words = stop_words
+        self.ironman = None
 
     def run(self, target_url, treat_as_root=False, limit=500):
         # Create the ironman object
-        ironman = Ironman(target_url, treat_as_root=treat_as_root)
+        self.ironman = Ironman(target_url, treat_as_root=treat_as_root)
 
         # Starts crawling through the web page, keeping track of the limit of pages
         # to be accessed
-        ironman.spiderForLinks(start_url=target_url, limit=limit)
+        self.ironman.spiderForLinks(start_url=target_url, limit=limit)
 
         # Takes each html, htm, and txt page and extracts all the words, stems
         # all the words, and removes the stop words
-        for doc in ironman.retrieved_documents:
+        for doc in self.ironman.retrieved_documents:
             url, soup = doc
             self.parser.retrieveText(soup, url)
 
