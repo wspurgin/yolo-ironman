@@ -232,7 +232,6 @@ class Ironman(object):
             sys.stdout.write("\rNumber of pages visited: %d" % len(visited_hrefs))
             sys.stdout.flush()
 
-
             # There may be no response if a request was never attempted (e.g.
             # it was an external link)
             if response is None:
