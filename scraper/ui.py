@@ -152,11 +152,16 @@ class UI(object):
 
         ranked_docs = self.pepper.handleQuery(user_query)
         i = 1
-        print "{0:>15} | {1:>15} | {2:>14}".format("Rank", "Score", "Document")
         for score, doc in ranked_docs:
+            if score == 0: break
+            if i == 1:
+                print "{0:>15} | {1:>15} | {2:>14}".format("Rank", "Score", "Document")
             print "{0:>15} | {1:15f} | {2:14s}".format(i, score, doc.url)
             i += 1
             if i > self.top_k: break
+        if i == 1:
+            print "No results found for that query :("
+
 
     def setK(self, k=5):
         """Set the number of K results to show in a query (default is 5)
