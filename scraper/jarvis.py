@@ -6,151 +6,50 @@ from indexer import Indexer
 from urlparse import urlparse
 from normalized_document_calculator import NormalizedDocumentCalculator as Calculator
 from pepper import Pepper
-from porter import PorterStemmer
 import sys
 import pprint
 import re
 
-if __name__ == "__main__":
-    # If there are only 4 command line arguments, then the first is target URL,
-    # the second is the limit on the pages, and the third could either be a file
-    # name or a single stop word. In the event of the latter, a message is
-    # printed out to the console
-    if len(sys.argv) == 4:
-        target_url = sys.argv[1]
-        limit = sys.argv[2]
-        if limit.lower() is "none":
-            limit = None
-        try:
-            with open(sys.argv[3], 'r') as stop_word:
-                words = [word.strip() for word in stop_word.readlines()]
-        except IOError:
-            print "3rd argument not a file. Execution is continuing\
-                    assuming it's a stop word"
-            words = [sys.argv[3].lower()]
-    # If there are greater than 4 command line arguments, then the
-    # first is the limit on the pages, and the rest are the stop
-    # words that must be considered
-    elif len(sys.argv) > 4:
-        target_url = sys.argv[1]
-        limit = sys.argv[2]
-        if limit.lower() == "none":
-            limit = None
-        words = sys.argv[3:]
-    # If there are only 3 command line arguments, then there is only
-    # a limit on the pages and no stop words to consider
-    elif len(sys.argv) == 3:
-        target_url = sys.argv[1]
-        limit = sys.argv[2]
-        if limit.lower() == "none":
-            limit = None
-        words = None
-    elif len(sys.argv) == 2:
-        target_url = sys.argv[1]
-        limit = None
-        words = None
-    # If there are no command line arguements, then there is no limit
-    # and no stop words to consider
-    else:
-        target_url = None
-        limit = None
-        words = None
+class Jarvis(object):
 
-    # Use ~fmoore as the default target URL.
-    if target_url is None or target_url.lower() == "none":
-        target_url = "http://lyle.smu.edu/~fmoore/"
+    def __init__(self, stop_words=[]):
+        super(Ironman, self).__init__()
 
-    # Guard against invalid URLs.
-    if not urlparse(target_url).scheme:
-        print "Invalid URL: %s" % target_url
-        print "First argument must be a either 'none' or a valid URL."
-        print "HINT: Did you include the scheme? (e.g. http://)"
-        quit()
+        # Create the parser object, passing in the stop words
+        self.parser = Parser(stop_words=stop_words)
+        self.index = Indexer()
+        self.calculator = None
+        self.stop_words = stop_words
 
-    # Checks to make sure that limit is a valid positive integer before
-    # moving on to the next bits
-    if limit is not None:
-        try:
-            limit = int(limit)
-            if limit < 0:
-                print "Second argument must be either 'none' or a positive integer"
-                quit()
-        except ValueError:
-              if limit != "none":
-                print "Second argument must be either 'none' or a positive integer"
-                quit()
+    def run(self, target_url, treat_as_root=False, limit=500):
+        # Create the ironman object
+        ironman = Ironman(target_url, treat_as_root=treat_as_root)
 
-    treat_as_root = False
-    # Check if target url is a non-standard root location.
-    url_path = urlparse(target_url).path
-    if url_path and re.match(r"^\/([^\.]+)+\/$", url_path):
-        treat_as_root = True
+        # Starts crawling through the web page, keeping track of the limit of pages
+        # to be accessed
+        ironman.spiderForLinks(start_url=target_url, limit=limit)
 
-    # Creates the ironman object
-    fe = Ironman(target_url, treat_as_root=treat_as_root)
+        # Takes each html, htm, and txt page and extracts all the words, stems
+        # all the words, and removes the stop words
+        for doc in ironman.retrieved_documents:
+            url, soup = doc
+            self.parser.retrieveText(soup, url)
 
-    # Creates the parser object, passing in the stop words
-    p = Parser(stop_words=words)
+        documents = self.documents()
 
-    # Creates the indexer object
-    i = Indexer()
+        # Indexes the words from the documents
+        self.index.indexWords(documents)
 
-    # Starts actually crawling through the web page, keeping track of
-    # the limit of pages to be accessed
-    fe.spiderForLinks(start_url=target_url, limit=limit)
-    print "\033[95mCrawl Results\033[0m"
-    for category, results in fe.report.iteritems():
-        print "\033[94m\t%s:\033[0m" % category
-        for crawl in results:
-            print"\t%s" % str(crawl)
-    print
+        # Creates the calculator that will calculate a document's normalized
+        # document vector scores. We pass it the word-frequency index throughout
+        # the corpus, and the number of documents.
+        self.calculator = Calculator(self.index.word_document_frequency,
+                len(documents))
 
-    # Takes each html, htm, and txt page and extracts all the words, stems
-    # all the words, and removes the stop words
-    for doc in fe.retrieved_documents:
-        url, soup = doc
-        p.retrieveText(soup, url)
+        # Updates every document to hold the normalized term frequency
+        for doc in documents:
+            self.calculator.normalize(doc)
 
-    # Indexes the words from the documents
-    i.indexWords(p.documents)
-
-    # Creates the calculator that will calculate a document's normalized
-    # document vector scores. We pass it the word-frequency index throughout
-    # the corpus, and the number of documents.
-    NDC = Calculator(i.word_document_frequency, len(p.documents))
-
-    # Updates every document to hold the normalized term frequency
-    for doc in p.documents:
-        NDC.normalize(doc)
-
-    pe = Pepper(p.documents, NDC, words)
-    # Print out number of unique documents encountered
-    print "Encountered %i unique documents" % len(p.documents)
-    print "Removed %i duplicates" % p.num_duplicates
-    print
-
-    query = "naive bayes K means"
-    print "Example Query: '%s'" % query
-    print "| {0:>15} | {1:>15} | {2:>15} | {3:>14} |".format("Term", "DF", "IDF", "F")
-    for term in pe.p.stemText(query, words).encode('utf_8', 'ignore').split():
-        if not i.word_document_frequency.has_key(term): continue
-        if not NDC.term_idfs.has_key(term): continue
-        if not i.word_freq.has_key(term): continue
-
-        df = i.word_document_frequency[term]
-        idf = NDC.term_idfs[term]
-        wf = i.word_freq[term]
-
-        print "| {0:>15} | {1:>15d} | {2:>15f} | {3:>14d} |".format(term, df, idf, wf)
-    print
-
-    ranked_docs = pe.handleQuery(query)
-    i = 1
-    top_x = 5
-    print "{0:>15} | {1:>15} | {2:>14}".format("Rank", "Score", "Document")
-    for score, doc in ranked_docs:
-        print "{0:>15} | {1:15f} | {2:14s}".format(i, score, doc.url)
-        i += 1
-        if i >= top_x: break
-
+    def documents(self):
+        return self.parser.documents
 
