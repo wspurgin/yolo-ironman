@@ -51,6 +51,7 @@ class Jarvis(object):
         for doc in documents:
             self.calculator.normalize(doc)
 
+
     def documents(self):
         return self.parser.documents
 

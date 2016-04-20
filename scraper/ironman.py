@@ -302,6 +302,8 @@ class Ironman(object):
             for href in cur_hrefs:
                 if href not in visited_hrefs and href not in href_queue:
                     href_queue.append(href)
+        # Print a line cause the sys.stdout.write does not
+        print
         # Calculates the mean response time
         self.mean_response_time = self.total_request_time / requests_made
         return self.report

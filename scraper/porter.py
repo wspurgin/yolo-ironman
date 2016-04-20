@@ -380,7 +380,7 @@ class PorterStemmer:
 
             if not word: continue
 
-            # Checks to see if the word is 
+            # Checks to see if the word is a stop word
             if stop_words is not None and word in stop_words: continue
 
             # Updates each word in the text to its stemmed equivalent
