@@ -78,17 +78,19 @@ documentation page](http://www.crummy.com/software/BeautifulSoup/bs4/doc/).
 Execution
 ---------
 
-To execute the program, simply run the yolo executable in the exe folder.
-On ubuntu and mac: 
+To execute the program, simply run the yolo executable in the `exe` folder.
+
+On Ubuntu and OS X:
 ```
 ~/yolo-ironman/exe$ ./yolo
 ```
 
-We have not tested windows, but maybe you can double click it? We're not sure.
-Perhaps you can also run it using the CLI for windows as long as you have all
+We have not tested Windows, but maybe you can double click it? We're not sure.
+Perhaps you can also run it using the CLI for Windows as long as you have all
 the packages install.
 
 ###Command Line Arguments
+
 There are no true command line arguments when running the program. However, we
 have created an interface that resembles the CLI. After executing the yolo file,
 your console will look like this:
@@ -98,26 +100,33 @@ your console will look like this:
 ```
 Once the > shows up, the program is ready to accept commands. There are 6 total
 commands (Note: These ARE case-sensitive):
-1. buildIndex [url]- Builds the index from a specified URL. If none is supplied, it defaults to http://lyle.smu.edu/~fmoore/
-2. query all_query_words - Can only be executed after buildIndex. 
-    all_query_words is all of the words that want to be queried separated by a space.
+
+1. `help [command]` - list a description and purpose of either just the specified
+   command, or all commands if the given command doesn't exist or no command is
+   specified
+2. `buildIndex [url]` - Builds the index from a specified URL. If none is
+   supplied, it defaults to http://lyle.smu.edu/~fmoore/
+3. `query query_word [more_query_words]` - Can only be executed after
+   buildIndex. All query_words is all of the words that want to be queried
+   separated by a space.
     ```
     >query find all these words
     ```
-3. quit - Exits the program
-4. loadStopWords path/to/file - Loads in a file that contains stopwords separated by newline. A stopword list is supplied by default.
-5. setK positive_integer - Sets the value of K, which determines the most amount of documents returned for a query
-6. help [command] - By default lists all the commands available, or if a command is supplied, returns the docstring for that command.
+4. `loadStopWords path/to/file` - Loads in a file that contains stop words
+   separated by newline. A stop word list is supplied by default.
+5. `setK` positive_integer - Sets the value of K, which determines the most
+   amount of documents returned for a query
+6. `quit` - Exits the program
 
 Ironman Description
 -------------------
 
 ### Directory Structure
 
-The indexer, parser, crawler, runner, query engine, UI, and all supporting code 
+The indexer, parser, crawler, runner, query engine, UI, and all supporting code
 are located within the `scraper` directory. The tests for each of the objects is
 under the `tests` directory. This section of the documentation is specifically
-concerned with the body of code under `scraper`. Below is summary information of 
+concerned with the body of code under `scraper`. Below is summary information of
 certain classes within the Yolo-Ironman project.
 
 ### Ironman
@@ -154,8 +163,6 @@ yolo = Ironman(my_fake_domain, treat_as_root=True)
 yolo.root
   #=> 'http://mom_and_dads.domain.us/me'
 ```
-
-### 
 
 ### Robot
 
@@ -200,9 +207,10 @@ printable.
 
 What would Ironman be without Jarvis? Just an awesome, fully functioning, shiny
 web-crawler-to-beat-all-web-crawlers! Jarvis handles the interaction between the
-UI and the crawler. 
+UI and the crawler.
 
 ### Pepper
 
-Tony Stark's image would be nothing without Pepper Pots. She is the query handler.
-Everytime you use the query command, Pepper takes care of it. No bones about it.
+Tony Stark's image would be nothing without Pepper Pots. She is the query
+handler. Every time you use the query command, Pepper takes care of it. No bones
+about it.
