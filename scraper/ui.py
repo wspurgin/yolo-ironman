@@ -95,7 +95,7 @@ class UI(object):
 
     def buildIndex(self, target_url=None, treat_as_root=False, limit=500):
         """Build or add to the Index.
-            @usage buildIndex target_url [treat_as_root]
+            @usage buildIndex [target_url] [treat_as_root] [limit]
             @param target_url, optional, a full URL (e.g. http://www.smu.edu)
             default is http://lyle.smu.edu/~fmoore/
             @param treat_as_root, optional signifier to treat the given URL as a
@@ -152,9 +152,10 @@ class UI(object):
 
     def query(self, *user_query):
         """Run a query against the index
-            @usage query user_query...
-            @param user_query, a string query of 1 or more words to search
+            @usage query query_word [more_query_words...]
+            @param query_word, a string query of 1 or more words to search
             within the index.
+            @example query foo bar hello world
         """
         if self.pepper is None:
             print "Index has not been built! Run `buildIndex` first."
@@ -200,10 +201,10 @@ class UI(object):
 
 
     def setK(self, k=5):
-        """Set the number of K results to show in a query (default is 5)
-            @usage setK k
-            @param k, an integer value representing the number of results to
-            show from queries.
+        """Set the maximum number of K results to show in a query (default is 5)
+            @usage setK [k]
+            @param k, optional, an integer value representing the number of
+            results to show from queries. If left blank, it is set to 5.
         """
         # Ensure and force Integer value
         try:
