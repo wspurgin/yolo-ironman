@@ -196,7 +196,7 @@ class UI(object):
             print "No results found for that query :("
         else:
             top_doc = ranked_docs[0][1]
-            print "First 20 words of top ranked document: %s" % doc.url
+            print "First 20 words of top ranked document: %s" % top_doc.url
             print "%s..." % " ".join(top_doc.full_text.split()[0:20])
 
 
