@@ -8,6 +8,7 @@ import sys
 import os
 import re
 import operator
+from inspect import getdoc
 
 class UIQuitException(Exception):
     def __init__(self, *args, **kwargs):
@@ -24,14 +25,6 @@ class UI(object):
         # Initialize Jarvis
         self.jarvis = Jarvis(stop_words = self.stop_words)
 
-    def loadStopWords(self, stop_words_file_path):
-        try:
-            with open(stop_words_file_path, 'r') as stop_words_file:
-                self.stop_words = [word.strip() for word in stop_words_file.readlines()]
-            self.jarvis.stop_words = self.stop_words
-        except IOError:
-            print "No file found at '%s'" % stop_words_file_path
-
     def run(self):
         try:
             while(True):
@@ -40,23 +33,61 @@ class UI(object):
                 raw = raw_input(">")
                 try:
                     cmd_and_args = raw.split()
+                    if len(cmd_and_args) == 0: continue
                     cmd, args = (cmd_and_args[0], cmd_and_args[1:])
+                    if cmd not in self.whiteListedMethods():
+                        print "No command %s" % cmd
+                        cmd = "help"
                     f = operator.methodcaller(cmd, *args)
                 except ValueError:
                     cmd = raw
+                    if cmd not in self.whiteListedMethods():
+                        print "No command %s" % cmd
+                        cmd = "help"
                     f = operator.methodcaller(cmd)
                 try:
                     f(self)
                 except TypeError as e:
                     # TODO print help doc string for method in cmd.
                     print "Wrong arguments for %s" % cmd
-                    print e
-                except AttributeError as e:
-                    print "No method %s" % cmd
-                    print e
-        except (UIQuitException, EOFError) as e:
+                    self.help(cmd)
+        except (UIQuitException, EOFError, KeyboardInterrupt) as e:
             print
             return
+
+    def help(self, cmd=None):
+        """Print out helpful information about available commands
+            @usage help [command]
+            @param command, optional, if present it will output only the help
+            text for that command; default is to print out all commands' help
+            text.
+        """
+        if cmd and str(cmd) in self.whiteListedMethods():
+            print "{}:".format(cmd)
+            help_text = getdoc(getattr(self, cmd)).split('\n')
+            for block in help_text:
+                print '\t{:<60}'.format(block.strip())
+        else:
+            # if a command was passed
+            if cmd: print "No command: '%s'" % cmd
+            for method in self.whiteListedMethods():
+                print "{}:".format(method)
+                help_text = getdoc(getattr(self, method)).split('\n')
+                for block in help_text:
+                    print '\t{:<60}'.format(block.strip())
+
+
+    def loadStopWords(self, stop_words_file_path):
+        """Load the specified file of stop words
+            @usage loadStopWords stop_words_file
+            @param stop_words_file, required, the path to a file of stop words
+        """
+        try:
+            with open(stop_words_file_path, 'r') as stop_words_file:
+                self.stop_words = [word.strip() for word in stop_words_file.readlines()]
+            self.jarvis.stop_words = self.stop_words
+        except IOError:
+            print "No file found at '%s'" % stop_words_file_path
 
     def quit(self):
         """Exit the interactive session"""
@@ -180,6 +211,9 @@ class UI(object):
             self.top_k = k
         except ValueError:
             print "Invalid integer value for k: '%s'" % k
+
+    def whiteListedMethods(self):
+        return ["help", "setK", "buildIndex", "query", "loadStopWords", "quit"]
 
 
 if __name__ == "__main__":
