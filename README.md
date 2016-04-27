@@ -78,69 +78,47 @@ documentation page](http://www.crummy.com/software/BeautifulSoup/bs4/doc/).
 Execution
 ---------
 
-To execute the program, simply run jarvis.py inside of the scraper folder
-with the python 2.7 interpreter.
+To execute the program, simply run the yolo executable in the exe folder.
+On ubuntu and mac: 
 ```
-~/yolo-ironman/scraper/$ python jarvis.py
+~/yolo-ironman/exe$ ./yolo
 ```
+
+We have not tested windows, but maybe you can double click it? We're not sure.
+Perhaps you can also run it using the CLI for windows as long as you have all
+the packages install.
 
 ###Command Line Arguments
-There are a few arguments that can be passed:
-
-1. A target URL to crawl
-2. The limit on how many pages will be accessed
-3. Words (or a text file containing words) that should be ignored when indexing
-   the pages
-
-The first argument must either be a valid URL (including scheme), or the word
-'none'
+There are no true command line arguments when running the program. However, we
+have created an interface that resembles the CLI. After executing the yolo file,
+your console will look like this:
 ```
-~/yolo-ironman/scraper/$ python jarvis.py http://lyle.smu.edu
-~/yolo-ironman/scraper/$ python jarvis.py none
+~/yolo-ironman/exe$ ./yolo
+>
 ```
-
-If 'none' is specified, then the default address of http://lyle.smu.edu/~fmoore
-is crawled.
-
-The second argument must either be a non-negative integer, or the word 'none'.
-```
-~/yolo-ironman/scraper/$ python jarvis.py http://lyle.smu.edu 20
-~/yolo-ironman/scraper/$ python jarvis.py none none
-```
-
-Putting 1 will result in only the base URL being crawled (the first page), while
-putting 'none' will put no limit on the number of pages to be crawled. This is
-the default behavior, but it is necessary to put none if stop words need to be
-included. Putting 0 will result in no pages being crawled.
-
-The third argument accepts varying values as well. It can either be a path to a
-text file or a hand typed list of words on the command line
-```
-~/yolo-ironman/scraper/$ python jarvis.py http://google.com 20 stopwords.txt
-~/yolo-ironman/scraper/$ python jarvis.py none 20 these are all my stop words
-~/yolo-ironman/scraper/$ python jarvis.py none none stopwords.txt
-```
-
-The text file MUST have words on separate lines:
-```
-These
-Are
-All
-My
-Stop
-Words
-```
+Once the > shows up, the program is ready to accept commands. There are 6 total
+commands (Note: These ARE case-sensitive):
+1. buildIndex [url]- Builds the index from a specified URL. If none is supplied, it defaults to http://lyle.smu.edu/~fmoore/
+2. query all_query_words - Can only be executed after buildIndex. 
+    all_query_words is all of the words that want to be queried separated by a space.
+    ```
+    >query find all these words
+    ```
+3. quit - Exits the program
+4. loadStopWords path/to/file - Loads in a file that contains stopwords separated by newline. A stopword list is supplied by default.
+5. setK positive_integer - Sets the value of K, which determines the most amount of documents returned for a query
+6. help [command] - By default lists all the commands available, or if a command is supplied, returns the docstring for that command.
 
 Ironman Description
 -------------------
 
 ### Directory Structure
 
-The indexer, parser, crawler, runner, and all supporting code are located within
-the `scraper` directory. The tests for each of the objects is under the `tests`
-directory. This section of the documentation is specifically concerned with the
-body of code under `scraper`. Below is summary information of certain classes
-within the Yolo-Ironman project.
+The indexer, parser, crawler, runner, query engine, UI, and all supporting code 
+are located within the `scraper` directory. The tests for each of the objects is
+under the `tests` directory. This section of the documentation is specifically
+concerned with the body of code under `scraper`. Below is summary information of 
+certain classes within the Yolo-Ironman project.
 
 ### Ironman
 
@@ -221,11 +199,10 @@ printable.
 ### Jarvis
 
 What would Ironman be without Jarvis? Just an awesome, fully functioning, shiny
-web-crawler-to-beat-all-web-crawlers! True. However, sometimes you just need a
-to have a good crawl and don't want to bother with writing a script and dealing
-with *this* output or reading through *that* class' docs. We get it. Jarvis is a
-handy-dandy command line program for just having a crawl. It'll crawl
-http://lyle.smu.edu/~fmoore by default and print out some nice summary things
-for you. However you can give it all kinds of <a
-href="#user-content-command-line-arguments">command line arguemnts</a>!
-Consider it an inspiration for when you want to write your own crawl.  :wink:
+web-crawler-to-beat-all-web-crawlers! Jarvis handles the interaction between the
+UI and the crawler. 
+
+### Pepper
+
+Tony Stark's image would be nothing without Pepper Pots. She is the query handler.
+Everytime you use the query command, Pepper takes care of it. No bones about it.
