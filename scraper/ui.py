@@ -195,6 +195,9 @@ class UI(object):
         if i == 1:
             print "No results found for that query :("
         else:
+            if i < self.top_k:
+                print "NOTE: Only outputted top {:d} documents, as all other "\
+                "documents had zero scores".format(i-1)
             top_doc = ranked_docs[0][1]
             print "First 20 words of top ranked document: %s" % top_doc.url
             print "%s..." % " ".join(top_doc.full_text.split()[0:20])
