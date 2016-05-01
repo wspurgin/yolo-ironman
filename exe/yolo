@@ -8,7 +8,6 @@ import atexit
 import os
 import sys
 import readline
-import rlcompleter
 
 # Set up history
 historyPath = os.path.expanduser("~/.yolohistory")
@@ -20,6 +19,8 @@ def save_history(historyPath=historyPath):
 if os.path.exists(historyPath):
     readline.read_history_file(historyPath)
 
+readline.parse_and_bind("tab: complete")
+
 # Save history at end of session
 atexit.register(save_history)
 
@@ -28,6 +29,7 @@ from scraper.ui import UI
 
 interface = UI()
 interface.loadStopWords(os.path.join(os.path.dirname(__file__), "../stop_words.txt"))
+readline.set_completer(interface.completer)
 interface.run()
 
-del os, atexit, readline, rlcompleter, save_history, historyPath
+del os, atexit, readline, save_history, historyPath

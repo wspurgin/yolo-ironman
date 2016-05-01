@@ -219,6 +219,17 @@ class UI(object):
     def whiteListedMethods(self):
         return ["help", "setK", "buildIndex", "query", "loadStopWords", "quit"]
 
+    def completer(self, text, state):
+        matches = []
+        p = re.compile(re.escape(text))
+        for m in self.whiteListedMethods():
+            if p.match(m):
+                matches.append(m)
+        try:
+            return matches[state]
+        except IndexError:
+            return None
+
 
 if __name__ == "__main__":
     ui = UI()
