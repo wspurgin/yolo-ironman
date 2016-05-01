@@ -5,8 +5,9 @@ browsed in a syntax highligted editor. In this editor there is a button titled
 or code (using git-blame).
 
 Will:
-I wrote the ironman.py, robot.py, crawl.py, and made minor adjustments to
-jarvis.py to output the report created by Ironman during a crawl.
+I wrote the ironman.py, robot.py, crawl.py, and made major adjustments to
+jarvis.py in version 2.0 to repurpose it for URL frontier management. Likewise
+I wrote the UI and executable yolo.
 
 Joe:
 I wrote indexer.py, parser.py, jarvis.py, and made modifications to porter.py so
