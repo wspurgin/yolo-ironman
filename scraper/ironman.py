@@ -91,7 +91,11 @@ class Ironman(object):
         is_travelable, reason = self.isTravelable(full_url, include_reason=True)
         req = None
         if is_travelable:
-            req = requests.head(full_url, allow_redirects=True)
+            try:
+                req = requests.head(full_url, allow_redirects=True)
+            except requests.exceptions.ConnectionError:
+                req = None
+                reason = "Connection Timed Out"
         return Crawl(full_url, reason, req)
 
     def isTravelable(self, full_url, include_reason=False):
