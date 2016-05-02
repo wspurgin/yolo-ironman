@@ -10,5 +10,6 @@ jarvis.py in version 2.0 to repurpose it for URL frontier management. Likewise
 I wrote the UI and executable yolo.
 
 Joe:
-I wrote indexer.py, parser.py, jarvis.py, and made modifications to porter.py so
-that it will better suit our needs.
+I made major adjustments to the indexer.py and parser.py to support the new
+Document object in document.py, which I also wrote. I also wrote the Pepper 
+object and .py file to handle the queries given by the user through the UI.
