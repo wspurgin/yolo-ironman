@@ -8,6 +8,7 @@ import sys
 import os
 import re
 import operator
+from pprint import pprint
 from inspect import getdoc
 
 class UIQuitException(Exception):
@@ -64,17 +65,21 @@ class UI(object):
         """
         if cmd and str(cmd) in self.whiteListedMethods():
             print "{}:".format(cmd)
-            help_text = getdoc(getattr(self, cmd)).split('\n')
-            for block in help_text:
-                print '\t{:<60}'.format(block.strip())
+            doc_string = getdoc(getattr(self, cmd))
+            if doc_string:
+                help_text = doc_string.split('\n')
+                for block in help_text:
+                    print '\t{:<60}'.format(block.strip())
         else:
             # if a command was passed
             if cmd: print "No command: '%s'" % cmd
             for method in self.whiteListedMethods():
                 print "{}:".format(method)
-                help_text = getdoc(getattr(self, method)).split('\n')
-                for block in help_text:
-                    print '\t{:<60}'.format(block.strip())
+                doc_string = getdoc(getattr(self, cmd))
+                if doc_string:
+                    help_text = doc_string.split('\n')
+                    for block in help_text:
+                        print '\t{:<60}'.format(block.strip())
 
 
     def loadStopWords(self, stop_words_file_path):
@@ -187,8 +192,8 @@ class UI(object):
         for score, doc in ranked_docs:
             if score == 0: break
             if i == 1:
-                print "{0:>15} | {1:>15} | {2:>14}".format("Rank", "Score", "Document")
-            print "{0:>15} | {1:15f} | {2:14s}".format(i, score, doc.url)
+                print "{0:>15} | {1:>15} | {2:>15} | {3:>14}".format("Rank", "Score", "Document", "ID")
+            print "{0:>15} | {1:15f} | {2:15s} | {3:14s}".format(i, score, doc.url, doc.id)
             i += 1
             if i > self.top_k: break
         print
@@ -216,8 +221,34 @@ class UI(object):
         except ValueError:
             print "Invalid integer value for k: '%s'" % k
 
+    def showDoc(self, docID):
+        """Show the document with the given ID
+            @usage showDoc bef194481a024c4cf9178e5e421529b4
+            @param docID, required, the hash ID of the document (partials are
+            matched, but may return multiples if not enough of the hash is
+            given).
+        """
+        id_re = re.compile(re.escape(docID))
+        matches = []
+        for doc in self.pepper.documents:
+            if id_re.match(doc.id):
+                matches.append(doc)
+        if len(matches) > 0:
+            if len(matches) != 1:
+                print "Warning, more than one document found matching that id."
+            for doc in matches:
+                print "Document ID: {}".format(doc.id)
+                print "Document URL: {}".format(doc.url)
+                print "Word Frequencies:"
+                pprint(doc.word_vector)
+                print "Normalized Document Vector:"
+                pprint(doc.normalized_tf)
+                print doc.full_text
+        else:
+            print "No document found with ID = {}".format(docID)
+
     def whiteListedMethods(self):
-        return ["help", "setK", "buildIndex", "query", "loadStopWords", "quit"]
+        return ["help", "setK", "buildIndex", "query", "loadStopWords", "quit", "showDoc"]
 
     def completer(self, text, state):
         matches = []
