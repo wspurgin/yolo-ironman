@@ -75,7 +75,7 @@ class UI(object):
             if cmd: print "No command: '%s'" % cmd
             for method in self.whiteListedMethods():
                 print "{}:".format(method)
-                doc_string = getdoc(getattr(self, cmd))
+                doc_string = getdoc(getattr(self, method))
                 if doc_string:
                     help_text = doc_string.split('\n')
                     for block in help_text:
